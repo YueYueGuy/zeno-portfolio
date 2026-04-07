@@ -793,9 +793,11 @@
     .series-grid.podcast-grid .series-card-main {
       aspect-ratio: 1 / 1;
     }
-    .series-grid.work-grid .series-card-main,
+    .series-grid.work-grid .series-card-main {
+      aspect-ratio: 16 / 10;
+    }
     .series-grid.keyboard-grid .series-card-main {
-      aspect-ratio: 16 / 9;
+      aspect-ratio: 16 / 10;
     }
     .series-grid.game-grid .series-card-main::after {
       display: none;
@@ -1720,6 +1722,19 @@
         align-items: flex-start;
         flex-direction: column;
       }
+      /* Explore/Work/Keyboard: only show title + View series in a row */
+      .series-grid:not(.game-grid):not(.podcast-grid) .series-card-caption {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .series-grid:not(.game-grid):not(.podcast-grid) .series-card-kicker,
+      .series-grid:not(.game-grid):not(.podcast-grid) .series-card-count {
+        display: none;
+      }
+      .series-grid:not(.game-grid):not(.podcast-grid) .series-card-link {
+        flex-shrink: 0;
+      }
       .series-card-title {
         font-size: 0.98rem;
       }
@@ -1800,10 +1815,10 @@
     }
     @media (max-width: 640px) {
       .series-grid.game-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
       .series-grid.podcast-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
       #leaves-overlay {
         opacity: 0.44;
