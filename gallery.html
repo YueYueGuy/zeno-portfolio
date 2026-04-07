@@ -1,0 +1,3713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zeno Zhang - Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hubot+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.css">
+  <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.min.js" defer></script>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --text: #111111;
+      --muted: rgba(17, 17, 17, 0.56);
+      --soft: rgba(17, 17, 17, 0.36);
+      --line: rgba(17, 17, 17, 0.08);
+      --surface: #f2f2ef;
+      --glass: rgba(14, 14, 14, 0.18);
+      --overlay-text: rgba(255,255,255,0.78);
+      --overlay-soft: rgba(255,255,255,0.58);
+      --overlay-title: rgba(255,255,255,0.74);
+      --overlay-arrow: rgba(255,255,255,0.54);
+      --focus-ring: rgba(224, 86, 114, 0.24);
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: 'Hubot Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      scrollbar-width: none;
+      overflow: hidden;
+    }
+
+    body.theme-night {
+      --bg: #080808;
+      --text: #d6d6d6;
+      --muted: rgba(214, 214, 214, 0.64);
+      --soft: rgba(214, 214, 214, 0.42);
+      --line: rgba(255, 255, 255, 0.08);
+      --surface: #121212;
+      --glass: rgba(255, 255, 255, 0.08);
+      --overlay-text: rgba(255,255,255,0.9);
+      --overlay-soft: rgba(255,255,255,0.66);
+      --overlay-title: rgba(255,255,255,0.86);
+      --overlay-arrow: rgba(255,255,255,0.7);
+      --focus-ring: rgba(122, 143, 166, 0.42);
+    }
+
+    body::-webkit-scrollbar { display: none; }
+
+    body.embedded-gallery {
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+
+    .page {
+      height: 100vh;
+      height: 100dvh;
+      padding: 8px clamp(6px, 0.75vw, 12px) 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 4px 0 6px;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: linear-gradient(180deg, rgba(250,250,250,0.95) 0%, rgba(250,250,250,0.82) 72%, rgba(250,250,250,0) 100%);
+    }
+
+    body.theme-night .topbar {
+      background: linear-gradient(180deg, rgba(8,8,8,0.94) 0%, rgba(8,8,8,0.8) 72%, rgba(8,8,8,0) 100%);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      border-radius: 999px;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .brand-text {
+      display: grid;
+      gap: 2px;
+      line-height: 1;
+    }
+
+    .brand-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.82);
+      box-shadow: inset 0 0 0 1px var(--line);
+      font-size: 0.76rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .brand:focus-visible,
+    .home-link:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--focus-ring);
+    }
+
+    body.theme-night .home-link {
+      background: rgba(255,255,255,0.05);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .gallery-shell {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.68) 0%, rgba(255,255,255,0) 60%),
+        linear-gradient(180deg, rgba(255,255,255,0.36) 0%, rgba(255,255,255,0) 24%);
+      border: 1px solid var(--line);
+    }
+
+    body.theme-night .gallery-shell {
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0) 58%),
+        linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0) 26%);
+    }
+
+    .gallery-scroll {
+      position: relative;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 6px 0 14px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    .gallery-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .gallery-stream {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      padding: 0 6px;
+      align-items: start;
+    }
+
+    .gallery-card {
+      position: relative;
+      display: block;
+      width: 100%;
+      margin: 0;
+      overflow: hidden;
+      border-radius: 16px;
+      background: var(--surface);
+      transition: transform 260ms cubic-bezier(0.19, 1, 0.22, 1);
+      isolation: isolate;
+      box-shadow: 0 18px 50px rgba(15, 15, 15, 0.06);
+      contain: layout style paint;
+    }
+
+    @media (hover: hover) {
+      .gallery-card {
+        will-change: transform;
+      }
+    }
+
+    .gallery-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .gallery-card:focus-visible {
+      outline: none;
+      transform: translateY(-4px);
+      box-shadow: 0 0 0 2px var(--focus-ring), 0 24px 60px rgba(26, 24, 22, 0.14);
+    }
+
+    .gallery-card-media {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .gallery-card img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gallery-card img[data-src] {
+      background: var(--surface);
+    }
+
+    @media (hover: hover) {
+      .gallery-card img {
+        transform: translateZ(0) scale(1.01);
+        transition: transform 800ms cubic-bezier(0.19, 1, 0.22, 1);
+      }
+
+      .gallery-card:hover img {
+        transform: translateZ(0) scale(1.035);
+      }
+
+      .gallery-card:focus-visible img {
+        transform: translateZ(0) scale(1.03);
+      }
+    }
+
+    .plyr {
+      --plyr-color-main: #E05672;
+    }
+    .gallery-card-media .plyr {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+    }
+    .gallery-card-media .plyr video {
+      object-fit: cover;
+    }
+
+    .gallery-card-overlay {
+      position: absolute;
+      inset: auto 12px 12px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 32px;
+      padding: 0 10px 0 11px;
+      border-radius: 999px;
+      color: var(--overlay-text);
+      background: var(--glass);
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 220ms ease, transform 220ms ease;
+      pointer-events: none;
+    }
+
+    .gallery-card:hover .gallery-card-overlay,
+    .gallery-card:focus-visible .gallery-card-overlay {
+      opacity: 1;
+      transform: translateY(0);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      background: color-mix(in srgb, var(--glass) 88%, rgba(255,255,255,0.08));
+    }
+
+    .gallery-card-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .gallery-card-series {
+      font-size: 0.58rem;
+      font-weight: 650;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--overlay-soft);
+      white-space: nowrap;
+    }
+
+    .gallery-card-title {
+      margin: 0;
+      min-width: 0;
+      font-size: 0.72rem;
+      line-height: 1.1;
+      letter-spacing: -0.015em;
+      font-weight: 560;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--overlay-title);
+    }
+
+    .gallery-card-arrow {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      color: var(--overlay-arrow);
+    }
+
+    .gallery-card-arrow svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .gallery-loader {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--soft);
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      background: color-mix(in srgb, var(--bg) 86%, transparent);
+      z-index: 5;
+      transition: opacity 220ms ease;
+    }
+
+    .gallery-loader[hidden] {
+      display: none;
+    }
+
+    @media (max-width: 1200px) {
+      .gallery-stream {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 820px) {
+      .page { padding-inline: 6px; }
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .gallery-shell {
+        border-radius: 14px;
+      }
+      .gallery-stream {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        padding-inline: 4px;
+      }
+      .gallery-card {
+        border-radius: 13px;
+        margin: 0;
+      }
+      .gallery-card-overlay {
+        inset: auto 8px 8px 8px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .gallery-stream {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    body.embedded-gallery .page {
+      padding: 0;
+      gap: 0;
+    }
+
+    body.embedded-gallery .topbar {
+      display: none;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="./index.html" aria-label="Back to home">
+        <img class="brand-mark" src="https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=100&q=80" alt="Zeno Zhang">
+        <div class="brand-text">
+          <span class="brand-name">Zeno Zhang</span>
+          <span class="brand-sub">Selected Works</span>
+        </div>
+      </a>
+      <a class="home-link" href="./index.html">Back Home</a>
+    </header>
+
+    <section class="gallery-shell">
+      <div class="gallery-scroll">
+        <main id="galleryStream" class="gallery-stream"></main>
+      </div>
+      <div id="loader" class="gallery-loader">Loading works...</div>
+    </section>
+    <div id="galleryAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  </div>
+
+  <script id="portfolioContentFallback" type="application/json">
+{
+  "version": 1,
+  "updatedAt": "2026-04-05T16:38:22Z",
+  "categories": [
+    {
+      "id": "explore",
+      "label": "Explore",
+      "description": "用于管理首页 Explore 下的案例与作品目录。",
+      "defaultTags": []
+    },
+    {
+      "id": "work",
+      "label": "Work",
+      "description": "用于管理公司工作经历与正式案例。",
+      "defaultTags": [
+        "product"
+      ]
+    },
+    {
+      "id": "keyboard",
+      "label": "My Keyboard",
+      "description": "用于管理键盘产品与相关图集。",
+      "defaultTags": [
+        "keyboard"
+      ]
+    },
+    {
+      "id": "game",
+      "label": "Game",
+      "description": "用于管理喜欢的游戏封面与展示内容。",
+      "defaultTags": [
+        "game"
+      ]
+    },
+    {
+      "id": "podcast",
+      "label": "Podcast",
+      "description": "用于管理常听播客的封面与展示内容。",
+      "defaultTags": [
+        "podcast"
+      ]
+    }
+  ],
+  "series": [
+    {
+      "id": "bytedance-work",
+      "title": "ByteDance",
+      "eyebrow": "Company Work Archive",
+      "summary": "A placeholder project shell for ByteDance work. Future case studies and visuals can be added here.",
+      "categoryId": "work",
+      "tags": [
+        "product"
+      ],
+      "items": [
+        {
+          "title": "ByteDance Cover",
+          "meta": "Company work cover",
+          "image": "assets/work/bytedance-cover.png",
+          "alt": "ByteDance work cover image",
+          "href": ""
+        }
+      ],
+      "detail": {
+        "eyebrow": "Company Work Archive",
+        "title": "ByteDance",
+        "summary": "This ByteDance project container is ready for future work samples, case studies, and deliverables.",
+        "hero": {
+          "title": "ByteDance",
+          "subtitle": "Product Designer · April 2021 - November 2021",
+          "image": "assets/work/bytedance-cover.png",
+          "alt": "ByteDance work cover image",
+          "href": ""
+        },
+        "sections": [
+          {
+            "id": "bytedance-work-intro",
+            "type": "text",
+            "label": "Overview",
+            "heading": "ByteDance work archive",
+            "summary": "A lightweight shell prepared for future uploads.",
+            "body": "This section is intentionally kept simple so ByteDance project work can be added gradually. You can replace this placeholder copy with case-study context, screenshots, flows, and outcomes later."
+          },
+          {
+            "id": "bytedance-work-cover",
+            "type": "image",
+            "label": "Cover",
+            "heading": "ByteDance cover image",
+            "title": "ByteDance",
+            "body": "Current placeholder cover for the company work collection.",
+            "image": "assets/work/bytedance-cover.png",
+            "alt": "ByteDance work cover image",
+            "href": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "okx-work",
+      "title": "OKX",
+      "eyebrow": "Company Work Archive",
+      "summary": "A placeholder project shell for OKX work. Future case studies and visuals can be added here.",
+      "categoryId": "work",
+      "tags": [
+        "product"
+      ],
+      "items": [
+        {
+          "title": "OKX Cover",
+          "meta": "Company work cover",
+          "image": "assets/work/okx-cover.png",
+          "alt": "OKX work cover image",
+          "href": ""
+        }
+      ],
+      "detail": {
+        "eyebrow": "Company Work Archive",
+        "title": "OKX",
+        "summary": "This OKX project container is ready for future work samples, case studies, and deliverables.",
+        "hero": {
+          "title": "OKX",
+          "subtitle": "Product Designer · November 2021 - November 2022",
+          "image": "assets/work/okx-cover.png",
+          "alt": "OKX work cover image",
+          "href": ""
+        },
+        "sections": [
+          {
+            "id": "okx-work-intro",
+            "type": "text",
+            "label": "Overview",
+            "heading": "OKX work archive",
+            "summary": "A lightweight shell prepared for future uploads.",
+            "body": "This section is intentionally kept simple so OKX project work can be added gradually. You can replace this placeholder copy with case-study context, screenshots, flows, and outcomes later."
+          },
+          {
+            "id": "okx-work-cover",
+            "type": "image",
+            "label": "Cover",
+            "heading": "OKX cover image",
+            "title": "OKX",
+            "body": "Current placeholder cover for the company work collection.",
+            "image": "assets/work/okx-cover.png",
+            "alt": "OKX work cover image",
+            "href": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "bitdeer-work",
+      "title": "Bitdeer",
+      "eyebrow": "Company Work Archive",
+      "summary": "A placeholder project shell for Bitdeer work. Future case studies and visuals can be added here.",
+      "categoryId": "work",
+      "tags": [
+        "product"
+      ],
+      "items": [
+        {
+          "title": "Bitdeer Cover",
+          "meta": "Company work cover",
+          "image": "assets/work/bitdeer-cover.png",
+          "alt": "Bitdeer work cover image",
+          "href": ""
+        }
+      ],
+      "detail": {
+        "eyebrow": "Company Work Archive",
+        "title": "Bitdeer",
+        "summary": "This Bitdeer project container is ready for future work samples, case studies, and deliverables.",
+        "hero": {
+          "title": "Bitdeer",
+          "subtitle": "Product Designer · November 2022 - Present",
+          "image": "assets/work/bitdeer-cover.png",
+          "alt": "Bitdeer work cover image",
+          "href": ""
+        },
+        "sections": [
+          {
+            "id": "bitdeer-work-intro",
+            "type": "text",
+            "label": "Overview",
+            "heading": "Bitdeer work archive",
+            "summary": "A lightweight shell prepared for future uploads.",
+            "body": "This section is intentionally kept simple so Bitdeer project work can be added gradually. You can replace this placeholder copy with case-study context, screenshots, flows, and outcomes later."
+          },
+          {
+            "id": "bitdeer-work-cover",
+            "type": "image",
+            "label": "Cover",
+            "heading": "Bitdeer cover image",
+            "title": "Bitdeer",
+            "body": "Current placeholder cover for the company work collection.",
+            "image": "assets/work/bitdeer-cover.png",
+            "alt": "Bitdeer work cover image",
+            "href": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "nv70-keyboard",
+      "title": "NV-70",
+      "eyebrow": "GDK Lab Keyboard Collection",
+      "summary": "A dedicated keyboard collection for the NV-70, featuring industrial product renders and close-up details from GDK Lab.",
+      "categoryId": "keyboard",
+      "tags": [
+        "keyboard"
+      ],
+      "items": [
+        {
+          "title": "NV-70 Hero Render",
+          "meta": "Keyboard collection cover",
+          "image": "assets/keyboard/nv70-01.webp",
+          "href": ""
+        },
+        {
+          "title": "NV-70 RGB Detail",
+          "meta": "Close-up product detail",
+          "image": "assets/keyboard/nv70-02.webp",
+          "href": ""
+        },
+        {
+          "title": "NV-70 Front View",
+          "meta": "Front elevation render",
+          "image": "assets/keyboard/nv70-03.webp",
+          "href": ""
+        },
+        {
+          "title": "NV-70 Structure View",
+          "meta": "Keyboard chassis render",
+          "image": "assets/keyboard/nv70-04.webp",
+          "href": ""
+        },
+        {
+          "title": "NV-70 Back View",
+          "meta": "Rear shell render",
+          "image": "assets/keyboard/nv70-05.webp",
+          "href": ""
+        }
+      ],
+      "detail": {
+        "eyebrow": "Keyboard Collection",
+        "title": "NV-70",
+        "summary": "A product-focused keyboard collection for NV-70 by GDK Lab, showcasing the board through cinematic hero views, close-up lighting details, and structural angles.",
+        "hero": {
+          "title": "NV-70 by GDK Lab",
+          "subtitle": "A compact mechanical keyboard explored through industrial renders and detail views",
+          "image": "assets/keyboard/nv70-01.webp",
+          "alt": "NV-70 keyboard hero render",
+          "href": ""
+        },
+        "sections": [
+          {
+            "id": "nv70-intro",
+            "type": "text",
+            "label": "Overview",
+            "heading": "A compact keyboard collection with a futuristic industrial finish",
+            "summary": "An opening overview for the NV-70 series.",
+            "body": "NV-70 is presented here as a focused keyboard collection for GDK Lab. The series highlights the board through a mix of hero renders, close-up lighting details, and structural views that emphasize material finish, compact proportions, and the product’s distinctive RGB treatment."
+          },
+          {
+            "id": "nv70-hero",
+            "type": "image",
+            "label": "Hero Render",
+            "heading": "The main product hero establishes the overall silhouette",
+            "title": "NV-70 Hero Render",
+            "body": "A wide hero angle that frames the keyboard as a premium desk object with a dark, cinematic industrial atmosphere.",
+            "image": "assets/keyboard/nv70-01.webp",
+            "alt": "NV-70 keyboard hero render",
+            "href": ""
+          },
+          {
+            "id": "nv70-detail",
+            "type": "image",
+            "label": "Detail",
+            "heading": "Close-up lighting and edge treatment",
+            "title": "NV-70 RGB Detail",
+            "body": "A tighter crop focusing on the keyboard corner, RGB band, and side detailing that give the board its futuristic identity.",
+            "image": "assets/keyboard/nv70-02.webp",
+            "alt": "NV-70 keyboard RGB detail",
+            "href": ""
+          },
+          {
+            "id": "nv70-front",
+            "type": "image",
+            "label": "Front View",
+            "heading": "A straight-on view for key layout and proportion",
+            "title": "NV-70 Front View",
+            "body": "This view clarifies the keyboard layout and visual balance while setting it in a sculptural environment.",
+            "image": "assets/keyboard/nv70-03.webp",
+            "alt": "NV-70 front view render",
+            "href": ""
+          },
+          {
+            "id": "nv70-structure",
+            "type": "image",
+            "label": "Structure",
+            "heading": "A rotated composition reveals chassis and back construction",
+            "title": "NV-70 Structure View",
+            "body": "An exploded-feeling angle that reveals how the keyboard looks from both top and back, emphasizing hardware design rather than interface graphics.",
+            "image": "assets/keyboard/nv70-04.webp",
+            "alt": "NV-70 rotated structure render",
+            "href": ""
+          },
+          {
+            "id": "nv70-back",
+            "type": "image",
+            "label": "Back View",
+            "heading": "Rear shell design and finishing details",
+            "title": "NV-70 Back View",
+            "body": "The closing image focuses on the back shell treatment and reinforces the keyboard as a crafted industrial object.",
+            "image": "assets/keyboard/nv70-05.webp",
+            "alt": "NV-70 back view render",
+            "href": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "hellcat-alice-mech-01",
+      "title": "HellCat Alice Mech-01",
+      "eyebrow": "Owlab Keyboard Collection",
+      "summary": "A keyboard collection for HellCat Alice Mech-01 by Owlab, featuring sculptural angles, futuristic details, and close-up industrial styling.",
+      "categoryId": "keyboard",
+      "tags": [
+        "keyboard"
+      ],
+      "items": [
+        {
+          "title": "HellCat Alice Mech-01 Hero",
+          "meta": "Keyboard collection cover",
+          "image": "assets/keyboard/hellcat-01.jpg",
+          "href": ""
+        },
+        {
+          "title": "HellCat Alice Mech-01 Side View",
+          "meta": "Low angle render",
+          "image": "assets/keyboard/hellcat-02.jpg",
+          "href": ""
+        },
+        {
+          "title": "HellCat Alice Mech-01 Perspective",
+          "meta": "Three-quarter product render",
+          "image": "assets/keyboard/hellcat-03.jpg",
+          "href": ""
+        },
+        {
+          "title": "HellCat Alice Mech-01 Full Angle",
+          "meta": "Wide perspective render",
+          "image": "assets/keyboard/hellcat-04.jpg",
+          "href": ""
+        },
+        {
+          "title": "HellCat Alice Mech-01 Detail",
+          "meta": "Close-up keyboard detail",
+          "image": "assets/keyboard/hellcat-05.jpg",
+          "href": ""
+        }
+      ],
+      "detail": {
+        "eyebrow": "Keyboard Collection",
+        "title": "HellCat Alice Mech-01",
+        "summary": "A product-focused collection for HellCat Alice Mech-01 by Owlab, showcasing the keyboard through hero renders, angled views, and close-up mechanical details.",
+        "hero": {
+          "title": "HellCat Alice Mech-01 by Owlab",
+          "subtitle": "A split-form mechanical keyboard explored through cinematic renders and industrial close-ups",
+          "image": "assets/keyboard/hellcat-01.jpg",
+          "alt": "HellCat Alice Mech-01 hero render",
+          "href": ""
+        },
+        "sections": [
+          {
+            "id": "hellcat-intro",
+            "type": "text",
+            "label": "Overview",
+            "heading": "A sculptural Alice-layout keyboard with strong industrial character",
+            "summary": "An opening overview for the HellCat Alice Mech-01 series.",
+            "body": "HellCat Alice Mech-01 is presented here as a keyboard collection for Owlab. The series highlights the board through multiple angles that emphasize its Alice-style split form, elevated side profile, industrial panel details, and compact but dramatic visual language."
+          },
+          {
+            "id": "hellcat-hero",
+            "type": "image",
+            "label": "Hero Render",
+            "heading": "The main render frames the keyboard as a statement object",
+            "title": "HellCat Alice Mech-01 Hero",
+            "body": "A centered hero view that introduces the keyboard silhouette and establishes the sharp, futuristic tone of the product.",
+            "image": "assets/keyboard/hellcat-01.jpg",
+            "alt": "HellCat Alice Mech-01 hero render",
+            "href": ""
+          },
+          {
+            "id": "hellcat-side",
+            "type": "image",
+            "label": "Side View",
+            "heading": "A lower angle highlights the profile and underglow accents",
+            "title": "HellCat Alice Mech-01 Side View",
+            "body": "This side-focused render brings attention to the keyboard height, side materials, and dramatic underbody treatment.",
+            "image": "assets/keyboard/hellcat-02.jpg",
+            "alt": "HellCat Alice Mech-01 side angle",
+            "href": ""
+          },
+          {
+            "id": "hellcat-perspective",
+            "type": "image",
+            "label": "Perspective",
+            "heading": "Three-quarter views show the split layout more clearly",
+            "title": "HellCat Alice Mech-01 Perspective",
+            "body": "A perspective view that reinforces the unique Alice ergonomics and the layered construction of the top housing.",
+            "image": "assets/keyboard/hellcat-03.jpg",
+            "alt": "HellCat Alice Mech-01 perspective render",
+            "href": ""
+          },
+          {
+            "id": "hellcat-angle",
+            "type": "image",
+            "label": "Wide Angle",
+            "heading": "A wider angle reveals the keyboard as a complete desk object",
+            "title": "HellCat Alice Mech-01 Full Angle",
+            "body": "This image gives a clearer sense of the overall footprint and the board’s aggressive, sculpted proportions.",
+            "image": "assets/keyboard/hellcat-04.jpg",
+            "alt": "HellCat Alice Mech-01 full-angle render",
+            "href": ""
+          },
+          {
+            "id": "hellcat-detail",
+            "type": "image",
+            "label": "Detail",
+            "heading": "Close-up material and key-area detail",
+            "title": "HellCat Alice Mech-01 Detail",
+            "body": "A tighter crop that focuses on the key cluster, surrounding hardware, and the small industrial touches that define the product.",
+            "image": "assets/keyboard/hellcat-05.jpg",
+            "alt": "HellCat Alice Mech-01 close-up detail",
+            "href": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "neo80-cu",
+      "title": "Neo80 Cu",
+      "eyebrow": "Neo Studio Keyboard Collection",
+      "summary": "A keyboard collection for Neo80 Cu by Neo Studio, featuring colorway renders, profile studies, hardware details, and exploded component visuals.",
+      "categoryId": "keyboard",
+      "tags": [
+        "keyboard"
+      ],
+      "items": [
+        {
+          "title": "Neo80 Cu Hero",
+          "meta": "Keyboard collection cover",
+          "image": "assets/keyboard/neo80cu-01.webp",
+          "href": ""
+        },
+        {
+          "title": "Neo80 Cu Side Profile",
+          "meta": "Profile and port detail",
+          "image": "assets/keyboard/neo80cu-02.webp",
+          "href": ""
+        },
+        {
+          "title": "Neo80 Cu Rear Plate",
+          "meta": "Backplate render",
+          "image": "assets/keyboard/neo80cu-03.webp",
+          "href": ""
+        },
+        {
+          "title": "Neo80 Cu Edge Detail",
+          "meta": "Side material detail",
+          "image": "assets/keyboard/neo80cu-04.webp",
+          "href": ""
+        },
+        {
+          "title": "Neo80 Cu Blue Variant",
+          "meta": "Alternate colorway detail",
+          "image": "assets/keyboard/neo80cu-05.webp",
+          "href": ""
+        },
+        {
+          "title": "Neo80 Cu Hardware Detail",
+          "meta": "Knob and hardware close-up",
+          "image": "assets/keyboard/neo80cu-06.webp",
+          "href": ""
+        },
+        {
+          "title": "Neo80 Cu Exploded View",
+          "meta": "Assembly render",
+          "image": "assets/keyboard/neo80cu-07.webp",
+          "href": ""
+        },
+        {
+          "title": "Neo80 Cu Component Detail",
+          "meta": "Mechanical component close-up",
+          "image": "assets/keyboard/neo80cu-08.webp",
+          "href": ""
+        }
+      ],
+      "detail": {
+        "eyebrow": "Keyboard Collection",
+        "title": "Neo80 Cu",
+        "summary": "A product-focused collection for Neo80 Cu by Neo Studio, showing the keyboard through colorway hero renders, profile studies, backplate views, and detailed component breakdowns.",
+        "hero": {
+          "title": "Neo80 Cu by Neo Studio",
+          "subtitle": "A refined mechanical keyboard explored through industrial renders, profile studies, and component details",
+          "image": "assets/keyboard/neo80cu-01.webp",
+          "alt": "Neo80 Cu hero render",
+          "href": ""
+        },
+        "sections": [
+          {
+            "id": "neo80-intro",
+            "type": "text",
+            "label": "Overview",
+            "heading": "A premium 80% keyboard shaped by material contrast and hardware detail",
+            "summary": "An opening overview for the Neo80 Cu series.",
+            "body": "Neo80 Cu is presented here as a keyboard collection for Neo Studio. The series highlights the board across multiple colorways and viewpoints, focusing on its compact 80% layout, metallic case contrast, backplate construction, and carefully rendered hardware details."
+          },
+          {
+            "id": "neo80-hero",
+            "type": "image",
+            "label": "Hero Render",
+            "heading": "The main render establishes the overall colorway and silhouette",
+            "title": "Neo80 Cu Hero",
+            "body": "A hero angle that frames the keyboard as a premium desk object with soft natural light and a rich anodized finish.",
+            "image": "assets/keyboard/neo80cu-01.webp",
+            "alt": "Neo80 Cu hero render",
+            "href": ""
+          },
+          {
+            "id": "neo80-profile",
+            "type": "image",
+            "label": "Profile",
+            "heading": "A side elevation reveals the layered case profile",
+            "title": "Neo80 Cu Side Profile",
+            "body": "This profile view focuses on the keyboard height, port cutout, and the strong contrast between the upper and lower case materials.",
+            "image": "assets/keyboard/neo80cu-02.webp",
+            "alt": "Neo80 Cu side profile render",
+            "href": ""
+          },
+          {
+            "id": "neo80-rear",
+            "type": "image",
+            "label": "Backplate",
+            "heading": "The underside render turns the backplate into a key design feature",
+            "title": "Neo80 Cu Rear Plate",
+            "body": "A clean underside view that emphasizes machining, geometry, and the visual identity of the rear plate design.",
+            "image": "assets/keyboard/neo80cu-03.webp",
+            "alt": "Neo80 Cu rear plate render",
+            "href": ""
+          },
+          {
+            "id": "neo80-edge",
+            "type": "image",
+            "label": "Edge Detail",
+            "heading": "Close-up edge geometry and metallic finishing",
+            "title": "Neo80 Cu Edge Detail",
+            "body": "A close-up angle that highlights chamfers, sidewall treatment, and how the materials meet along the keyboard edge.",
+            "image": "assets/keyboard/neo80cu-04.webp",
+            "alt": "Neo80 Cu edge detail render",
+            "href": ""
+          },
+          {
+            "id": "neo80-variant",
+            "type": "image",
+            "label": "Variant",
+            "heading": "Alternate colorway presentation",
+            "title": "Neo80 Cu Blue Variant",
+            "body": "A different finish variation that shows how the product identity adapts across colorways while keeping the same hardware language.",
+            "image": "assets/keyboard/neo80cu-05.webp",
+            "alt": "Neo80 Cu blue variant render",
+            "href": ""
+          },
+          {
+            "id": "neo80-hardware",
+            "type": "image",
+            "label": "Hardware",
+            "heading": "Knob and hardware detail at macro scale",
+            "title": "Neo80 Cu Hardware Detail",
+            "body": "A macro detail that isolates one of the keyboard’s distinctive mechanical components and emphasizes the precision of the design.",
+            "image": "assets/keyboard/neo80cu-06.webp",
+            "alt": "Neo80 Cu hardware detail render",
+            "href": ""
+          },
+          {
+            "id": "neo80-exploded",
+            "type": "image",
+            "label": "Exploded View",
+            "heading": "An exploded render reveals the layered construction",
+            "title": "Neo80 Cu Exploded View",
+            "body": "This composition breaks the keyboard apart into its major layers and helps communicate the internal build quality and assembly logic.",
+            "image": "assets/keyboard/neo80cu-07.webp",
+            "alt": "Neo80 Cu exploded view render",
+            "href": ""
+          },
+          {
+            "id": "neo80-component",
+            "type": "image",
+            "label": "Component Detail",
+            "heading": "A final close-up on the mechanical detail system",
+            "title": "Neo80 Cu Component Detail",
+            "body": "The closing image zooms into a small component detail to reinforce the product’s precision-engineered character.",
+            "image": "assets/keyboard/neo80cu-08.webp",
+            "alt": "Neo80 Cu component detail render",
+            "href": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "sendjoy",
+      "title": "Sendjoy",
+      "eyebrow": "Fintech Ecosystem",
+      "summary": "A connected fintech series that carries one visual language from the marketing website into the product app.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile",
+        "web"
+      ],
+      "items": [
+        {
+          "title": "Sendjoy Web Design",
+          "meta": "10.8K views · Fintech",
+          "image": "https://cdn.dribbble.com/userupload/36759981/file/original-a92a7cef02be0779efae3240f035de01.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/17872247-Sendjoy-Web-Design"
+        },
+        {
+          "title": "Sendjoy App Design Pt.2",
+          "meta": "13.3K views · Payment App",
+          "image": "https://cdn.dribbble.com/userupload/36375336/file/original-5bee884792e9936909ea66570b8e0ad9.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/17751458-Sendjoy-App-Design-Part-2"
+        },
+        {
+          "title": "Sendjoy App Design",
+          "meta": "13.3K views · Fintech",
+          "image": "https://cdn.dribbble.com/userupload/36252491/file/original-0cb1b721a213d7e60d062c133ec631d3.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/17702024-Sendjoy-App-Design"
+        },
+        {
+          "title": "Sendjoy App Design - Screens",
+          "meta": "Fintech",
+          "image": "assets/explore/sendjoy-app-1.png",
+          "alt": "Sendjoy App Design Screens",
+          "href": "https://dribbble.com/shots/25019226-Sendjoy-App-Design"
+        },
+        {
+          "title": "Sendjoy App Design - Details",
+          "meta": "Fintech",
+          "image": "assets/explore/sendjoy-app-2.png",
+          "alt": "Sendjoy App Design Details",
+          "href": "https://dribbble.com/shots/25019226-Sendjoy-App-Design"
+        }
+      ],
+      "detail": {
+        "eyebrow": "Fintech Case Study",
+        "title": "Sendjoy Fintech Ecosystem",
+        "summary": "A long-form case study connecting the marketing website and mobile product into one consistent fintech story with shared tone, clarity, and conversion intent.",
+        "hero": {
+          "title": "Sendjoy Web Design",
+          "subtitle": "Brand-to-product continuity across website and app surfaces",
+          "image": "https://cdn.dribbble.com/userupload/36759981/file/original-a92a7cef02be0779efae3240f035de01.png?resize=1600x0",
+          "alt": "Sendjoy website hero visual",
+          "href": "https://dribbble.com/shots/17872247-Sendjoy-Web-Design"
+        },
+        "sections": [
+          {
+            "id": "sendjoy-overview",
+            "type": "text",
+            "label": "Overview",
+            "heading": "Building one coherent fintech journey",
+            "summary": "The case study connects brand touchpoints and product touchpoints in one flow.",
+            "body": "Sendjoy was approached as a unified experience rather than a separate marketing site and app. The brand surface had to create confidence and momentum, while the product UI needed to carry that trust into money-related flows.\n\nThat makes this project especially suited for a Behance-style structure, where the narrative moves from positioning to execution."
+          },
+          {
+            "id": "sendjoy-brand-product",
+            "type": "text",
+            "label": "Design Goal",
+            "heading": "From acquisition to product confidence",
+            "summary": "The website and app needed to feel like the same company speaking in the same tone.",
+            "body": "The visual language focuses on warmth, accessibility, and confidence. On the website side, the work emphasizes clarity and conversion. Inside the product, the same language becomes more functional, supporting financial tasks without feeling cold or overly technical."
+          },
+          {
+            "id": "sendjoy-highlight",
+            "type": "image",
+            "label": "Highlight",
+            "heading": "Website entry point",
+            "title": "A warm, conversion-led fintech landing experience",
+            "body": "The cover image introduces the ecosystem and sets the product tone before users even enter the app.",
+            "image": "https://cdn.dribbble.com/userupload/36759981/file/original-a92a7cef02be0779efae3240f035de01.png?resize=1600x0",
+            "alt": "Sendjoy website visual",
+            "href": "https://dribbble.com/shots/17872247-Sendjoy-Web-Design"
+          },
+          {
+            "id": "sendjoy-product-flow",
+            "type": "gallery",
+            "label": "Product Flow",
+            "heading": "Mobile payment experience",
+            "summary": "These screens show how the product UI extends the same tone into action-oriented flows.",
+            "items": [
+              {
+                "title": "Sendjoy App Design Pt.2",
+                "meta": "13.3K views · Payment App",
+                "image": "https://cdn.dribbble.com/userupload/36375336/file/original-5bee884792e9936909ea66570b8e0ad9.png?resize=1600x0",
+                "alt": "Sendjoy App Design Pt.2",
+                "href": "https://dribbble.com/shots/17751458-Sendjoy-App-Design-Part-2"
+              },
+              {
+                "title": "Sendjoy App Design",
+                "meta": "13.3K views · Fintech",
+                "image": "https://cdn.dribbble.com/userupload/36252491/file/original-0cb1b721a213d7e60d062c133ec631d3.png?resize=1600x0",
+                "alt": "Sendjoy App Design",
+                "href": "https://dribbble.com/shots/17702024-Sendjoy-App-Design"
+              },
+              {
+                "title": "Sendjoy App Design - Screens",
+                "meta": "Fintech",
+                "image": "assets/explore/sendjoy-app-1.png",
+                "alt": "Sendjoy App Design Screens",
+                "href": "https://dribbble.com/shots/25019226-Sendjoy-App-Design"
+              },
+              {
+                "title": "Sendjoy App Design - Details",
+                "meta": "Fintech",
+                "image": "assets/explore/sendjoy-app-2.png",
+                "alt": "Sendjoy App Design Details",
+                "href": "https://dribbble.com/shots/25019226-Sendjoy-App-Design"
+              }
+            ]
+          },
+          {
+            "id": "sendjoy-consistency",
+            "type": "text",
+            "label": "Consistency",
+            "heading": "Keeping the story cohesive across surfaces",
+            "summary": "The project uses one visual voice across conversion, onboarding, and core use cases.",
+            "body": "The value of this case study is not only in the individual screens but in the relationship between them. Shared spacing, typography, framing, and emphasis patterns make the ecosystem feel more complete and believable.\n\nThis is the kind of continuity Behance-style case studies are especially good at showing."
+          },
+          {
+            "id": "sendjoy-quote",
+            "type": "quote",
+            "label": "Takeaway",
+            "heading": "Product principle",
+            "quote": "Fintech products earn trust by making brand promise and product behavior feel like the same conversation.",
+            "source": "Zeno Zhang · Product Design"
+          }
+        ]
+      }
+    },
+    {
+      "id": "storyboard",
+      "title": "StoryBoard",
+      "eyebrow": "Music Platform",
+      "summary": "An expressive music and social app concept, expanded from product feed to dashboard and community touchpoints.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "StoryBoard App Pt.2",
+          "meta": "18.8K views · Music Platform",
+          "image": "https://cdn.dribbble.com/userupload/40450842/file/original-69167e024deb78e025a7a623cc97a607.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/15322068-StoryBoard-App-Design-Part-2"
+        },
+        {
+          "title": "StoryBoard Dashboard",
+          "meta": "20.6K views · Music Dashboard",
+          "image": "https://cdn.dribbble.com/userupload/31034621/file/original-6f1154264c3144981b3a4d2a6bbcd599.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/15201948-StoryBoard-Dashboard-App-Design"
+        },
+        {
+          "title": "StoryBoard App Design",
+          "meta": "26.3K views · Music & Social",
+          "image": "https://cdn.dribbble.com/userupload/31004803/file/original-2a98ff4120f384a0b402cc6622aa0cf3.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/15188461-StoryBoard-App-Design"
+        }
+      ],
+      "detail": {
+        "eyebrow": "Music Platform",
+        "title": "StoryBoard",
+        "summary": "An expressive music and social app concept, expanded from product feed to dashboard and community touchpoints.",
+        "hero": {
+          "title": "StoryBoard App Pt.2",
+          "subtitle": "18.8K views · Music Platform",
+          "image": "https://cdn.dribbble.com/userupload/40450842/file/original-69167e024deb78e025a7a623cc97a607.png?resize=1600x0",
+          "alt": "StoryBoard App Pt.2",
+          "href": "https://dribbble.com/shots/15322068-StoryBoard-App-Design-Part-2"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "An expressive music and social app concept, expanded from product feed to dashboard and community touchpoints."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "StoryBoard App Pt.2",
+                "meta": "18.8K views · Music Platform",
+                "image": "https://cdn.dribbble.com/userupload/40450842/file/original-69167e024deb78e025a7a623cc97a607.png?resize=1600x0",
+                "alt": "StoryBoard App Pt.2",
+                "href": "https://dribbble.com/shots/15322068-StoryBoard-App-Design-Part-2"
+              },
+              {
+                "title": "StoryBoard Dashboard",
+                "meta": "20.6K views · Music Dashboard",
+                "image": "https://cdn.dribbble.com/userupload/31034621/file/original-6f1154264c3144981b3a4d2a6bbcd599.png?resize=1600x0",
+                "alt": "StoryBoard Dashboard",
+                "href": "https://dribbble.com/shots/15201948-StoryBoard-Dashboard-App-Design"
+              },
+              {
+                "title": "StoryBoard App Design",
+                "meta": "26.3K views · Music & Social",
+                "image": "https://cdn.dribbble.com/userupload/31004803/file/original-2a98ff4120f384a0b402cc6622aa0cf3.png?resize=1600x0",
+                "alt": "StoryBoard App Design",
+                "href": "https://dribbble.com/shots/15188461-StoryBoard-App-Design"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "gamecores",
+      "title": "GAMECORES",
+      "eyebrow": "Brand System",
+      "summary": "A brand-heavy gaming community direction with layered cyberpunk visuals and a strong editorial UI voice.",
+      "categoryId": "explore",
+      "tags": [
+        "brand"
+      ],
+      "items": [
+        {
+          "title": "GAMECORES App Pt.3",
+          "meta": "32.4K views · Cyberpunk",
+          "image": "https://cdn.dribbble.com/userupload/30775432/file/still-b6f4669689dc84b5a986370ee6074a3e.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/15067095-GAMECORES-App-Design-Part-3"
+        },
+        {
+          "title": "GAMECORES App Pt.2",
+          "meta": "33.2K views · Gaming",
+          "image": "https://cdn.dribbble.com/userupload/30673258/file/original-f41a07c3ed3a24ba951f40dafb9b49df.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/14996316-GAMECORES-App-Design-Part-2"
+        },
+        {
+          "title": "GAMECORES App Design",
+          "meta": "19.4K views · Gaming Community",
+          "image": "https://cdn.dribbble.com/userupload/30584281/file/original-257b602c81978e3bbea27fc99422a8f8.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/14940660-GAMECORES-App-Design"
+        }
+      ],
+      "detail": {
+        "eyebrow": "Brand and Community Case Study",
+        "title": "GAMECORES Brand Experience",
+        "summary": "A richer case-study version of the GAMECORES project, focusing on how bold cyberpunk branding was translated into a layered product and community experience.",
+        "hero": {
+          "title": "GAMECORES App Pt.3",
+          "subtitle": "Cyberpunk art direction, community product design, and brand system thinking",
+          "image": "https://cdn.dribbble.com/userupload/30775432/file/still-b6f4669689dc84b5a986370ee6074a3e.png?resize=1600x0",
+          "alt": "GAMECORES cyberpunk hero visual",
+          "href": "https://dribbble.com/shots/15067095-GAMECORES-App-Design-Part-3"
+        },
+        "sections": [
+          {
+            "id": "gamecores-overview",
+            "type": "text",
+            "label": "Overview",
+            "heading": "Turning a bold visual world into a usable product system",
+            "summary": "The work explores the meeting point between expressive branding and community UX.",
+            "body": "GAMECORES is strongest when it feels immersive without losing structure. The project builds a vivid gaming identity, but it still needs the product discipline of hierarchy, readability, and flow.\n\nThat tension makes it ideal for a Behance-style case study, because the narrative can show how the visual world supports the product rather than overpowering it."
+          },
+          {
+            "id": "gamecores-brand-direction",
+            "type": "text",
+            "label": "Brand Direction",
+            "heading": "Cyberpunk, editorial contrast, and community energy",
+            "summary": "The design system uses strong atmosphere, but the composition remains intentional.",
+            "body": "The project combines layered gradients, stronger contrast, and futuristic detailing with a clearer editorial layout. This keeps the identity memorable while preserving product legibility.\n\nThe result is less like a skin on top of a product and more like a fully authored product universe."
+          },
+          {
+            "id": "gamecores-highlight",
+            "type": "image",
+            "label": "Highlight",
+            "heading": "Immersive brand surface",
+            "title": "A high-energy visual anchor for the community experience",
+            "body": "This shot captures the strongest expression of the project and sets the tone for the rest of the case study.",
+            "image": "https://cdn.dribbble.com/userupload/30775432/file/still-b6f4669689dc84b5a986370ee6074a3e.png?resize=1600x0",
+            "alt": "GAMECORES immersive hero surface",
+            "href": "https://dribbble.com/shots/15067095-GAMECORES-App-Design-Part-3"
+          },
+          {
+            "id": "gamecores-system",
+            "type": "text",
+            "label": "System Thinking",
+            "heading": "Making the visual language repeatable",
+            "summary": "Beyond hero imagery, the project needed repeatable patterns across community features.",
+            "body": "A key part of the design work is building repeatable patterns: card structures, content emphasis, status treatment, and navigation rhythm. That keeps the experience extensible while protecting the visual identity that makes it distinctive."
+          },
+          {
+            "id": "gamecores-gallery",
+            "type": "gallery",
+            "label": "Selected Works",
+            "heading": "Community and product explorations",
+            "summary": "These screens show how the visual system expands across the wider product.",
+            "items": [
+              {
+                "title": "GAMECORES App Pt.3",
+                "meta": "32.4K views · Cyberpunk",
+                "image": "https://cdn.dribbble.com/userupload/30775432/file/still-b6f4669689dc84b5a986370ee6074a3e.png?resize=1600x0",
+                "alt": "GAMECORES App Pt.3",
+                "href": "https://dribbble.com/shots/15067095-GAMECORES-App-Design-Part-3"
+              },
+              {
+                "title": "GAMECORES App Pt.2",
+                "meta": "33.2K views · Gaming",
+                "image": "https://cdn.dribbble.com/userupload/30673258/file/original-f41a07c3ed3a24ba951f40dafb9b49df.png?resize=1600x0",
+                "alt": "GAMECORES App Pt.2",
+                "href": "https://dribbble.com/shots/14996316-GAMECORES-App-Design-Part-2"
+              },
+              {
+                "title": "GAMECORES App Design",
+                "meta": "19.4K views · Gaming Community",
+                "image": "https://cdn.dribbble.com/userupload/30584281/file/original-257b602c81978e3bbea27fc99422a8f8.png?resize=1600x0",
+                "alt": "GAMECORES App Design",
+                "href": "https://dribbble.com/shots/14940660-GAMECORES-App-Design"
+              }
+            ]
+          },
+          {
+            "id": "gamecores-quote",
+            "type": "quote",
+            "label": "Takeaway",
+            "heading": "Brand principle",
+            "quote": "Strong visual identity works best when it gives the product a world, not when it competes with the product for attention.",
+            "source": "Zeno Zhang · Product Design"
+          }
+        ]
+      }
+    },
+    {
+      "id": "social-lifestyle",
+      "title": "Social & Lifestyle",
+      "eyebrow": "Community Concepts",
+      "summary": "Messaging, social, and wellness explorations gathered into one brighter, lifestyle-led product series.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Social App Design 3",
+          "meta": "68.9K views · Social",
+          "image": "https://cdn.dribbble.com/userupload/30584453/file/still-16e092ebef4a502098a98d566d6d8070.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/14953825-Social-App-Design-3"
+        },
+        {
+          "title": "Social App Design 2",
+          "meta": "108K views · Messaging",
+          "image": "https://cdn.dribbble.com/userupload/30392090/file/original-8601f05f5503ec5c9dc6d5ca75be9163.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/14860735-Social-App-Design-2"
+        },
+        {
+          "title": "Social App Design",
+          "meta": "191K views · Most Popular",
+          "image": "https://cdn.dribbble.com/userupload/29992551/file/original-6df5f710a15dc9c261af6b4ea30fbed4.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/14690853-Social-App-Design"
+        },
+        {
+          "title": "Pink Dragon App Pt.3",
+          "meta": "69.4K views · Fitness & Wellness",
+          "image": "https://cdn.dribbble.com/userupload/29952361/file/still-91c603671cb06cb6ee759352857833e0.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/14668478-Pink-Dragon-App-Design-Part-3"
+        }
+      ],
+      "detail": {
+        "eyebrow": "Community Concepts",
+        "title": "Social & Lifestyle",
+        "summary": "Messaging, social, and wellness explorations gathered into one brighter, lifestyle-led product series.",
+        "hero": {
+          "title": "Social App Design 3",
+          "subtitle": "68.9K views · Social",
+          "image": "https://cdn.dribbble.com/userupload/30584453/file/still-16e092ebef4a502098a98d566d6d8070.png?resize=1600x0",
+          "alt": "Social App Design 3",
+          "href": "https://dribbble.com/shots/14953825-Social-App-Design-3"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "Messaging, social, and wellness explorations gathered into one brighter, lifestyle-led product series."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Social App Design 3",
+                "meta": "68.9K views · Social",
+                "image": "https://cdn.dribbble.com/userupload/30584453/file/still-16e092ebef4a502098a98d566d6d8070.png?resize=1600x0",
+                "alt": "Social App Design 3",
+                "href": "https://dribbble.com/shots/14953825-Social-App-Design-3"
+              },
+              {
+                "title": "Social App Design 2",
+                "meta": "108K views · Messaging",
+                "image": "https://cdn.dribbble.com/userupload/30392090/file/original-8601f05f5503ec5c9dc6d5ca75be9163.png?resize=1600x0",
+                "alt": "Social App Design 2",
+                "href": "https://dribbble.com/shots/14860735-Social-App-Design-2"
+              },
+              {
+                "title": "Social App Design",
+                "meta": "191K views · Most Popular",
+                "image": "https://cdn.dribbble.com/userupload/29992551/file/original-6df5f710a15dc9c261af6b4ea30fbed4.png?resize=1600x0",
+                "alt": "Social App Design",
+                "href": "https://dribbble.com/shots/14690853-Social-App-Design"
+              },
+              {
+                "title": "Pink Dragon App Pt.3",
+                "meta": "69.4K views · Fitness & Wellness",
+                "image": "https://cdn.dribbble.com/userupload/29952361/file/still-91c603671cb06cb6ee759352857833e0.png?resize=1600x0",
+                "alt": "Pink Dragon App Pt.3",
+                "href": "https://dribbble.com/shots/14668478-Pink-Dragon-App-Design-Part-3"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "nexbase",
+      "title": "Nexbase",
+      "eyebrow": "App Concept",
+      "summary": "A polished mobile app concept series exploring product flows, feature surfaces, and high-fidelity UI moments.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Nexbase App Design",
+          "meta": "Mobile App Concept",
+          "image": "https://cdn.dribbble.com/userupload/2991928/file/original-6cd7f8538e9e6801ea3e0c6626a529b8.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/18581940-Nexbase-App-Design"
+        },
+        {
+          "title": "Nexbase App Design Part 2",
+          "meta": "Mobile App Concept",
+          "image": "https://cdn.dribbble.com/userupload/6405217/file/original-679511617bc0ec7659efd7f9a8bac26e.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/21251305-Nexbase-App-Design-Part-2"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "Nexbase",
+        "summary": "A polished mobile app concept series exploring product flows, feature surfaces, and high-fidelity UI moments.",
+        "hero": {
+          "title": "Nexbase App Design",
+          "subtitle": "Mobile App Concept",
+          "image": "https://cdn.dribbble.com/userupload/2991928/file/original-6cd7f8538e9e6801ea3e0c6626a529b8.png?resize=1600x1200",
+          "alt": "Nexbase App Design",
+          "href": "https://dribbble.com/shots/18581940-Nexbase-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A polished mobile app concept series exploring product flows, feature surfaces, and high-fidelity UI moments."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Nexbase App Design",
+                "meta": "Mobile App Concept",
+                "image": "https://cdn.dribbble.com/userupload/2991928/file/original-6cd7f8538e9e6801ea3e0c6626a529b8.png?resize=1600x1200",
+                "alt": "Nexbase App Design",
+                "href": "https://dribbble.com/shots/18581940-Nexbase-App-Design"
+              },
+              {
+                "title": "Nexbase App Design Part 2",
+                "meta": "Mobile App Concept",
+                "image": "https://cdn.dribbble.com/userupload/6405217/file/original-679511617bc0ec7659efd7f9a8bac26e.png?resize=1600x1200",
+                "alt": "Nexbase App Design Part 2",
+                "href": "https://dribbble.com/shots/21251305-Nexbase-App-Design-Part-2"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "zalando-app",
+      "title": "Zalando",
+      "eyebrow": "App Concept",
+      "summary": "A fashion commerce app concept that focuses on visual merchandising, browsing clarity, and editorial mobile composition.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Zalando App Design",
+          "meta": "Fashion Commerce",
+          "image": "https://cdn.dribbble.com/userupload/29448685/file/original-3025bf42126c3288744ec941b05ee66e.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/14520452-Zalando-App-Design"
+        },
+        {
+          "title": "Zalando App Design Part 2",
+          "meta": "Fashion Commerce",
+          "image": "https://cdn.dribbble.com/userupload/29486273/file/original-9d4602c14f118e9dd6fb9b3c381e09b3.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/14539599-Zalando-App-Design-Part-2"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "Zalando",
+        "summary": "A fashion commerce app concept that focuses on visual merchandising, browsing clarity, and editorial mobile composition.",
+        "hero": {
+          "title": "Zalando App Design",
+          "subtitle": "Fashion Commerce",
+          "image": "https://cdn.dribbble.com/userupload/29448685/file/original-3025bf42126c3288744ec941b05ee66e.png?resize=1600x1200",
+          "alt": "Zalando App Design",
+          "href": "https://dribbble.com/shots/14520452-Zalando-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A fashion commerce app concept that focuses on visual merchandising, browsing clarity, and editorial mobile composition."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Zalando App Design",
+                "meta": "Fashion Commerce",
+                "image": "https://cdn.dribbble.com/userupload/29448685/file/original-3025bf42126c3288744ec941b05ee66e.png?resize=1600x1200",
+                "alt": "Zalando App Design",
+                "href": "https://dribbble.com/shots/14520452-Zalando-App-Design"
+              },
+              {
+                "title": "Zalando App Design Part 2",
+                "meta": "Fashion Commerce",
+                "image": "https://cdn.dribbble.com/userupload/29486273/file/original-9d4602c14f118e9dd6fb9b3c381e09b3.png?resize=1600x1200",
+                "alt": "Zalando App Design Part 2",
+                "href": "https://dribbble.com/shots/14539599-Zalando-App-Design-Part-2"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "podcast-app",
+      "title": "Podcast App",
+      "eyebrow": "App Concept",
+      "summary": "A listening-focused mobile concept designed around discovery, episode browsing, and a richer editorial podcast experience.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Podcast App Design",
+          "meta": "Media App",
+          "image": "https://cdn.dribbble.com/userupload/29119470/file/original-f4a8145e13fba5634d96482b666ba9f9.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/14369940-Podecast-App-Design"
+        },
+        {
+          "title": "Podcast App Design Part 2",
+          "meta": "Media App",
+          "image": "https://cdn.dribbble.com/userupload/29136444/file/original-781b5816c19644b712a610b2668107bd.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/14376623-Podcast-App-Design-Part-2"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "Podcast App",
+        "summary": "A listening-focused mobile concept designed around discovery, episode browsing, and a richer editorial podcast experience.",
+        "hero": {
+          "title": "Podcast App Design",
+          "subtitle": "Media App",
+          "image": "https://cdn.dribbble.com/userupload/29119470/file/original-f4a8145e13fba5634d96482b666ba9f9.png?resize=1600x1200",
+          "alt": "Podcast App Design",
+          "href": "https://dribbble.com/shots/14369940-Podecast-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A listening-focused mobile concept designed around discovery, episode browsing, and a richer editorial podcast experience."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Podcast App Design",
+                "meta": "Media App",
+                "image": "https://cdn.dribbble.com/userupload/29119470/file/original-f4a8145e13fba5634d96482b666ba9f9.png?resize=1600x1200",
+                "alt": "Podcast App Design",
+                "href": "https://dribbble.com/shots/14369940-Podecast-App-Design"
+              },
+              {
+                "title": "Podcast App Design Part 2",
+                "meta": "Media App",
+                "image": "https://cdn.dribbble.com/userupload/29136444/file/original-781b5816c19644b712a610b2668107bd.png?resize=1600x1200",
+                "alt": "Podcast App Design Part 2",
+                "href": "https://dribbble.com/shots/14376623-Podcast-App-Design-Part-2"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "twitch-app",
+      "title": "Twitch",
+      "eyebrow": "App Concept",
+      "summary": "A streaming-first mobile concept built around live content, creator browsing, and an energetic entertainment visual language.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Twitch App Design",
+          "meta": "Streaming Platform",
+          "image": "https://cdn.dribbble.com/userupload/29026632/file/original-e76b0bb440b93c1eb63e9711d6362f54.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/14331386-Twitch-App-Design"
+        },
+        {
+          "title": "Twitch App Design Part 2",
+          "meta": "Streaming Platform",
+          "image": "https://cdn.dribbble.com/userupload/29046393/file/original-851bcd39fe52e3d36cff1ab9f5ff2a5f.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/14339258-Twitch-App-Design-Part-2"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "Twitch",
+        "summary": "A streaming-first mobile concept built around live content, creator browsing, and an energetic entertainment visual language.",
+        "hero": {
+          "title": "Twitch App Design",
+          "subtitle": "Streaming Platform",
+          "image": "https://cdn.dribbble.com/userupload/29026632/file/original-e76b0bb440b93c1eb63e9711d6362f54.png?resize=1600x1200",
+          "alt": "Twitch App Design",
+          "href": "https://dribbble.com/shots/14331386-Twitch-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A streaming-first mobile concept built around live content, creator browsing, and an energetic entertainment visual language."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Twitch App Design",
+                "meta": "Streaming Platform",
+                "image": "https://cdn.dribbble.com/userupload/29026632/file/original-e76b0bb440b93c1eb63e9711d6362f54.png?resize=1600x1200",
+                "alt": "Twitch App Design",
+                "href": "https://dribbble.com/shots/14331386-Twitch-App-Design"
+              },
+              {
+                "title": "Twitch App Design Part 2",
+                "meta": "Streaming Platform",
+                "image": "https://cdn.dribbble.com/userupload/29046393/file/original-851bcd39fe52e3d36cff1ab9f5ff2a5f.png?resize=1600x1200",
+                "alt": "Twitch App Design Part 2",
+                "href": "https://dribbble.com/shots/14339258-Twitch-App-Design-Part-2"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "reddit-redesign",
+      "title": "Reddit Redesign",
+      "eyebrow": "App Redesign",
+      "summary": "A visual redesign study for Reddit, exploring refreshed community feeds, post layouts, and social browsing patterns.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Reddit App Redesign",
+          "meta": "Social",
+          "image": "assets/explore/reddit-app-redesign.png",
+          "href": "https://dribbble.com/shots/12209544-Reddit-App-Redesign"
+        },
+        {
+          "title": "Reddit App Redesign 2",
+          "meta": "Social",
+          "image": "assets/explore/reddit-app-redesign-2.png",
+          "href": "https://dribbble.com/shots/12232700-Reddit-App-Redesign-2"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Redesign",
+        "title": "Reddit Redesign",
+        "summary": "A visual redesign study for Reddit, exploring refreshed community feeds, post layouts, and social browsing patterns.",
+        "hero": {
+          "title": "Reddit App Redesign",
+          "subtitle": "Social",
+          "image": "assets/explore/reddit-app-redesign.png",
+          "alt": "Reddit App Redesign",
+          "href": "https://dribbble.com/shots/12209544-Reddit-App-Redesign"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A visual redesign study for Reddit, exploring refreshed community feeds, post layouts, and social browsing patterns."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Reddit App Redesign",
+                "meta": "Social",
+                "image": "assets/explore/reddit-app-redesign.png",
+                "alt": "Reddit App Redesign",
+                "href": "https://dribbble.com/shots/12209544-Reddit-App-Redesign"
+              },
+              {
+                "title": "Reddit App Redesign 2",
+                "meta": "Social",
+                "image": "assets/explore/reddit-app-redesign-2.png",
+                "alt": "Reddit App Redesign 2",
+                "href": "https://dribbble.com/shots/12232700-Reddit-App-Redesign-2"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "instagram-redesign",
+      "title": "Instagram Redesign",
+      "eyebrow": "App Redesign",
+      "summary": "A visual redesign study for Instagram, exploring refreshed feed structures, profile surfaces, and social browsing behavior.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Instagram App Redesign",
+          "meta": "Social Redesign",
+          "image": "https://cdn.dribbble.com/userupload/28929329/file/original-989cf3038d7627ed408cee89c8e02f07.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/14290444-Instagram-App-Redesign"
+        },
+        {
+          "title": "Instagram App Redesign Part 2",
+          "meta": "Social Redesign",
+          "image": "https://cdn.dribbble.com/userupload/28958158/file/original-c313da1c8fe2da03768648f3dbf4ccb7.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/14302023-Instagram-App-Redesign-Part-2"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Redesign",
+        "title": "Instagram Redesign",
+        "summary": "A visual redesign study for Instagram, exploring refreshed feed structures, profile surfaces, and social browsing behavior.",
+        "hero": {
+          "title": "Instagram App Redesign",
+          "subtitle": "Social Redesign",
+          "image": "https://cdn.dribbble.com/userupload/28929329/file/original-989cf3038d7627ed408cee89c8e02f07.png?resize=1600x1200",
+          "alt": "Instagram App Redesign",
+          "href": "https://dribbble.com/shots/14290444-Instagram-App-Redesign"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A visual redesign study for Instagram, exploring refreshed feed structures, profile surfaces, and social browsing behavior."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Instagram App Redesign",
+                "meta": "Social Redesign",
+                "image": "https://cdn.dribbble.com/userupload/28929329/file/original-989cf3038d7627ed408cee89c8e02f07.png?resize=1600x1200",
+                "alt": "Instagram App Redesign",
+                "href": "https://dribbble.com/shots/14290444-Instagram-App-Redesign"
+              },
+              {
+                "title": "Instagram App Redesign Part 2",
+                "meta": "Social Redesign",
+                "image": "https://cdn.dribbble.com/userupload/28958158/file/original-c313da1c8fe2da03768648f3dbf4ccb7.png?resize=1600x1200",
+                "alt": "Instagram App Redesign Part 2",
+                "href": "https://dribbble.com/shots/14302023-Instagram-App-Redesign-Part-2"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "playstation-app",
+      "title": "Playstation",
+      "eyebrow": "App Concept",
+      "summary": "A gaming companion app concept with bold editorial presentation, library views, and immersive console-first product moments.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Playstation App Design",
+          "meta": "Gaming App",
+          "image": "https://cdn.dribbble.com/userupload/27662247/file/original-8038840759a437f60ce80dbd3dd95fb3.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/12121219-Playstation-App-Design"
+        },
+        {
+          "title": "Playstation App Design 2",
+          "meta": "Gaming App",
+          "image": "https://cdn.dribbble.com/userupload/27675903/file/original-65f6cfd14cafb5a950946829da7036fe.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/12129545-Playstation-App-Design-2"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "Playstation",
+        "summary": "A gaming companion app concept with bold editorial presentation, library views, and immersive console-first product moments.",
+        "hero": {
+          "title": "Playstation App Design",
+          "subtitle": "Gaming App",
+          "image": "https://cdn.dribbble.com/userupload/27662247/file/original-8038840759a437f60ce80dbd3dd95fb3.png?resize=1600x1200",
+          "alt": "Playstation App Design",
+          "href": "https://dribbble.com/shots/12121219-Playstation-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A gaming companion app concept with bold editorial presentation, library views, and immersive console-first product moments."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Playstation App Design",
+                "meta": "Gaming App",
+                "image": "https://cdn.dribbble.com/userupload/27662247/file/original-8038840759a437f60ce80dbd3dd95fb3.png?resize=1600x1200",
+                "alt": "Playstation App Design",
+                "href": "https://dribbble.com/shots/12121219-Playstation-App-Design"
+              },
+              {
+                "title": "Playstation App Design 2",
+                "meta": "Gaming App",
+                "image": "https://cdn.dribbble.com/userupload/27675903/file/original-65f6cfd14cafb5a950946829da7036fe.png?resize=1600x1200",
+                "alt": "Playstation App Design 2",
+                "href": "https://dribbble.com/shots/12129545-Playstation-App-Design-2"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "game-red-dead-redemption-2",
+      "title": "Red Dead Redemption 2",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Red Dead Redemption 2",
+          "meta": "Favorite Game",
+          "image": "assets/game/red-dead-redemption-2.png",
+          "alt": "Red Dead Redemption 2 cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-control",
+      "title": "Control",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Control",
+          "meta": "Favorite Game",
+          "image": "assets/game/control.jpg",
+          "alt": "Control cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-marvels-spider-man",
+      "title": "Marvel's Spider-Man",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Marvel's Spider-Man",
+          "meta": "Favorite Game",
+          "image": "assets/game/marvels-spider-man.png",
+          "alt": "Marvel's Spider-Man cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-ghost-of-tsushima",
+      "title": "Ghost of Tsushima",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Ghost of Tsushima",
+          "meta": "Favorite Game",
+          "image": "assets/game/ghost-of-tsushima.png",
+          "alt": "Ghost of Tsushima cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-horizon-zero-dawn",
+      "title": "Horizon Zero Dawn",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Horizon Zero Dawn",
+          "meta": "Favorite Game",
+          "image": "assets/game/horizon-zero-dawn.jpg",
+          "alt": "Horizon Zero Dawn cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-doom-eternal",
+      "title": "DOOM Eternal",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "DOOM Eternal",
+          "meta": "Favorite Game",
+          "image": "assets/game/doom-eternal.jpg",
+          "alt": "DOOM Eternal cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-the-last-of-us-part-ii",
+      "title": "The Last of Us Part II",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "The Last of Us Part II",
+          "meta": "Favorite Game",
+          "image": "assets/game/the-last-of-us-part-ii.jpg",
+          "alt": "The Last of Us Part II cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-deathloop",
+      "title": "Deathloop",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Deathloop",
+          "meta": "Favorite Game",
+          "image": "assets/game/deathloop.png",
+          "alt": "Deathloop cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-god-of-war",
+      "title": "God of War",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "God of War",
+          "meta": "Favorite Game",
+          "image": "assets/game/god-of-war.jpg",
+          "alt": "God of War cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-death-stranding",
+      "title": "Death Stranding",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Death Stranding",
+          "meta": "Favorite Game",
+          "image": "assets/game/death-stranding.png",
+          "alt": "Death Stranding cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-elden-ring",
+      "title": "Elden Ring",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Elden Ring",
+          "meta": "Favorite Game",
+          "image": "assets/game/elden-ring.jpg",
+          "alt": "Elden Ring cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-overwatch",
+      "title": "Overwatch",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Overwatch",
+          "meta": "Favorite Game",
+          "image": "assets/game/overwatch.jpg",
+          "alt": "Overwatch cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-the-witcher-3-wild-hunt",
+      "title": "The Witcher 3: Wild Hunt",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "The Witcher 3: Wild Hunt",
+          "meta": "Favorite Game",
+          "image": "assets/game/the-witcher-3-wild-hunt.jpg",
+          "alt": "The Witcher 3 Wild Hunt cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-nier-automata",
+      "title": "NieR:Automata",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "NieR:Automata",
+          "meta": "Favorite Game",
+          "image": "assets/game/nier-automata.png",
+          "alt": "NieR Automata cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-valorant",
+      "title": "VALORANT",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "VALORANT",
+          "meta": "Favorite Game",
+          "image": "assets/game/valorant.jpg",
+          "alt": "VALORANT cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-hollow-knight",
+      "title": "Hollow Knight",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Hollow Knight",
+          "meta": "Favorite Game",
+          "image": "assets/game/hollow-knight.jpg",
+          "alt": "Hollow Knight cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-the-legend-of-zelda-breath-of-the-wild",
+      "title": "The Legend of Zelda: Breath of the Wild",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "The Legend of Zelda: Breath of the Wild",
+          "meta": "Favorite Game",
+          "image": "assets/game/the-legend-of-zelda-breath-of-the-wild.jpg",
+          "alt": "The Legend of Zelda Breath of the Wild cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-apex-legends",
+      "title": "Apex Legends",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Apex Legends",
+          "meta": "Favorite Game",
+          "image": "assets/game/apex-legends.jpg",
+          "alt": "Apex Legends cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-call-of-duty-modern-warfare",
+      "title": "Call of Duty: Modern Warfare",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Call of Duty: Modern Warfare",
+          "meta": "Favorite Game",
+          "image": "assets/game/call-of-duty-modern-warfare.jpg",
+          "alt": "Call of Duty Modern Warfare cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-cyberpunk-2077",
+      "title": "Cyberpunk 2077",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Cyberpunk 2077",
+          "meta": "Favorite Game",
+          "image": "assets/game/cyberpunk-2077.jpg",
+          "alt": "Cyberpunk 2077 cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-the-division-2",
+      "title": "Tom Clancy's The Division 2",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Tom Clancy's The Division 2",
+          "meta": "Favorite Game",
+          "image": "assets/game/division-2.jpg",
+          "alt": "Tom Clancy's The Division 2 cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-rainbow-six-siege",
+      "title": "Tom Clancy's Rainbow Six Siege",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Tom Clancy's Rainbow Six Siege",
+          "meta": "Favorite Game",
+          "image": "assets/game/rainbow-six-siege.jpg",
+          "alt": "Tom Clancy's Rainbow Six Siege cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "podcast-hardcore",
+      "title": "硬核说",
+      "eyebrow": "Favorite Podcast",
+      "summary": "Display-only cover in the Podcast collection.",
+      "categoryId": "podcast",
+      "tags": [
+        "podcast"
+      ],
+      "items": [
+        {
+          "title": "硬核说",
+          "meta": "Favorite Podcast",
+          "image": "assets/podcast/hardcore.jpg",
+          "alt": "硬核说 podcast cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "podcast-tan-liren",
+      "title": "谭立人",
+      "eyebrow": "Favorite Podcast",
+      "summary": "Display-only cover in the Podcast collection.",
+      "categoryId": "podcast",
+      "tags": [
+        "podcast"
+      ],
+      "items": [
+        {
+          "title": "谭立人",
+          "meta": "Favorite Podcast",
+          "image": "assets/podcast/tan-liren.jpg",
+          "alt": "谭立人 podcast cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "podcast-fa-fa-da-wang",
+      "title": "发发大王",
+      "eyebrow": "Favorite Podcast",
+      "summary": "Display-only cover in the Podcast collection.",
+      "categoryId": "podcast",
+      "tags": [
+        "podcast"
+      ],
+      "items": [
+        {
+          "title": "发发大王",
+          "meta": "Favorite Podcast",
+          "image": "assets/podcast/fa-fa-da-wang.jpg",
+          "alt": "发发大王 podcast cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "podcast-childrens-unfit-jiang-sida",
+      "title": "儿童不宜、姜思达",
+      "eyebrow": "Favorite Podcast",
+      "summary": "Display-only cover in the Podcast collection.",
+      "categoryId": "podcast",
+      "tags": [
+        "podcast"
+      ],
+      "items": [
+        {
+          "title": "儿童不宜、姜思达",
+          "meta": "Favorite Podcast",
+          "image": "assets/podcast/childrens-unfit-jiang-sida.jpg",
+          "alt": "儿童不宜、姜思达 podcast cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "podcast-luo-yonghao-crossroads",
+      "title": "罗永浩的十字路口",
+      "eyebrow": "Favorite Podcast",
+      "summary": "Display-only cover in the Podcast collection.",
+      "categoryId": "podcast",
+      "tags": [
+        "podcast"
+      ],
+      "items": [
+        {
+          "title": "罗永浩的十字路口",
+          "meta": "Favorite Podcast",
+          "image": "assets/podcast/luo-yonghao-crossroads.jpg",
+          "alt": "罗永浩的十字路口 podcast cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "podcast-blackwater-park",
+      "title": "黑水公园",
+      "eyebrow": "Favorite Podcast",
+      "summary": "Display-only cover in the Podcast collection.",
+      "categoryId": "podcast",
+      "tags": [
+        "podcast"
+      ],
+      "items": [
+        {
+          "title": "黑水公园",
+          "meta": "Favorite Podcast",
+          "image": "assets/podcast/childrens-unfit-blackwater-park.jpg",
+          "alt": "黑水公园 podcast cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-sekiro-shadows-die-twice",
+      "title": "Sekiro: Shadows Die Twice",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Sekiro: Shadows Die Twice",
+          "meta": "Favorite Game",
+          "image": "assets/game/sekiro-shadows-die-twice.jpg",
+          "alt": "Sekiro: Shadows Die Twice cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-horizon-forbidden-west",
+      "title": "Horizon Forbidden West",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Horizon Forbidden West",
+          "meta": "Favorite Game",
+          "image": "assets/game/horizon-forbidden-west.png",
+          "alt": "Horizon Forbidden West cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-shadow-of-the-tomb-raider",
+      "title": "Shadow of the Tomb Raider",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Shadow of the Tomb Raider",
+          "meta": "Favorite Game",
+          "image": "assets/game/shadow-of-the-tomb-raider.jpg",
+          "alt": "Shadow of the Tomb Raider cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-alan-wake-ii",
+      "title": "Alan Wake II",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Alan Wake II",
+          "meta": "Favorite Game",
+          "image": "assets/game/alan-wake-ii.png",
+          "alt": "Alan Wake II cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-starfield",
+      "title": "Starfield",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Starfield",
+          "meta": "Favorite Game",
+          "image": "assets/game/starfield.png",
+          "alt": "Starfield cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-league-of-legends",
+      "title": "League of Legends",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "League of Legends",
+          "meta": "Favorite Game",
+          "image": "assets/game/league-of-legends.jpg",
+          "alt": "League of Legends cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-the-last-of-us",
+      "title": "The Last of Us",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "The Last of Us",
+          "meta": "Favorite Game",
+          "image": "assets/game/the-last-of-us.png",
+          "alt": "The Last of Us cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-god-of-war-ragnarok",
+      "title": "God of War Ragnarok",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "God of War Ragnarok",
+          "meta": "Favorite Game",
+          "image": "assets/game/god-of-war-ragnarok.png",
+          "alt": "God of War Ragnarok cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-marvels-spider-man-2",
+      "title": "Marvel's Spider-Man 2",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Marvel's Spider-Man 2",
+          "meta": "Favorite Game",
+          "image": "assets/game/marvels-spider-man-2.png",
+          "alt": "Marvel's Spider-Man 2 cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-uncharted-4",
+      "title": "Uncharted 4: A Thief's End",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Uncharted 4: A Thief's End",
+          "meta": "Favorite Game",
+          "image": "assets/game/uncharted-4-a-thiefs-end.png",
+          "alt": "Uncharted 4: A Thief's End cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-assassins-creed-shadows",
+      "title": "Assassin's Creed Shadows",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Assassin's Creed Shadows",
+          "meta": "Favorite Game",
+          "image": "assets/game/assassins-creed-shadows.png",
+          "alt": "Assassin's Creed Shadows cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-monster-hunter-world",
+      "title": "Monster Hunter: World",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Monster Hunter: World",
+          "meta": "Favorite Game",
+          "image": "assets/game/monster-hunter-world.jpg",
+          "alt": "Monster Hunter: World cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "game-far-cry-6",
+      "title": "Far Cry 6",
+      "eyebrow": "Favorite Game",
+      "summary": "Display-only cover in the Game collection.",
+      "categoryId": "game",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Far Cry 6",
+          "meta": "Favorite Game",
+          "image": "assets/game/far-cry-6.png",
+          "alt": "Far Cry 6 cover",
+          "href": ""
+        }
+      ]
+    },
+    {
+      "id": "logitech-store",
+      "title": "Logitech Store",
+      "eyebrow": "App Concept",
+      "summary": "A refined retail app concept exploring shopping flows, product storytelling, and a polished consumer storefront experience.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Logitech Store App Design",
+          "meta": "Retail App",
+          "image": "https://cdn.dribbble.com/userupload/27297784/file/original-8eb7eece09764dd7a37798621b77bf3b.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/11481360-Logitech-Store-App-Design"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "Logitech Store",
+        "summary": "A refined retail app concept exploring shopping flows, product storytelling, and a polished consumer storefront experience.",
+        "hero": {
+          "title": "Logitech Store App Design",
+          "subtitle": "Retail App",
+          "image": "https://cdn.dribbble.com/userupload/27297784/file/original-8eb7eece09764dd7a37798621b77bf3b.png?resize=1600x1200",
+          "alt": "Logitech Store App Design",
+          "href": "https://dribbble.com/shots/11481360-Logitech-Store-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A refined retail app concept exploring shopping flows, product storytelling, and a polished consumer storefront experience."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Logitech Store App Design",
+                "meta": "Retail App",
+                "image": "https://cdn.dribbble.com/userupload/27297784/file/original-8eb7eece09764dd7a37798621b77bf3b.png?resize=1600x1200",
+                "alt": "Logitech Store App Design",
+                "href": "https://dribbble.com/shots/11481360-Logitech-Store-App-Design"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "child-education",
+      "title": "Child Education",
+      "eyebrow": "App Concept",
+      "summary": "A playful educational mobile concept focused on child-friendly learning surfaces, progress moments, and engaging interaction patterns.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Child Education App Design",
+          "meta": "Education App",
+          "image": "https://cdn.dribbble.com/userupload/27021545/file/original-467a02bd8394f30dd8f8746ea6923710.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/11220305-Child-education-App-Design"
+        },
+        {
+          "title": "Child Education App Design Part 2",
+          "meta": "Education App",
+          "image": "https://cdn.dribbble.com/userupload/27021379/file/original-217e20870db72365cb19847a9773086a.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/11220137-Child-education-App-Design"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "Child Education",
+        "summary": "A playful educational mobile concept focused on child-friendly learning surfaces, progress moments, and engaging interaction patterns.",
+        "hero": {
+          "title": "Child Education App Design",
+          "subtitle": "Education App",
+          "image": "https://cdn.dribbble.com/userupload/27021545/file/original-467a02bd8394f30dd8f8746ea6923710.png?resize=1600x1200",
+          "alt": "Child Education App Design",
+          "href": "https://dribbble.com/shots/11220305-Child-education-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A playful educational mobile concept focused on child-friendly learning surfaces, progress moments, and engaging interaction patterns."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Child Education App Design",
+                "meta": "Education App",
+                "image": "https://cdn.dribbble.com/userupload/27021545/file/original-467a02bd8394f30dd8f8746ea6923710.png?resize=1600x1200",
+                "alt": "Child Education App Design",
+                "href": "https://dribbble.com/shots/11220305-Child-education-App-Design"
+              },
+              {
+                "title": "Child Education App Design Part 2",
+                "meta": "Education App",
+                "image": "https://cdn.dribbble.com/userupload/27021379/file/original-217e20870db72365cb19847a9773086a.png?resize=1600x1200",
+                "alt": "Child Education App Design Part 2",
+                "href": "https://dribbble.com/shots/11220137-Child-education-App-Design"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "overwatch2-app",
+      "title": "Overwatch 2",
+      "eyebrow": "App Concept",
+      "summary": "A bold game companion concept translating team-based energy into an app experience with expressive UI and gaming-first hierarchy.",
+      "categoryId": "explore",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Overwatch 2 Game App Design",
+          "meta": "Game Companion",
+          "image": "https://cdn.dribbble.com/userupload/26909773/file/original-3932d2773fb3d1b4c7ad60dcfee1cda7.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/11124093-Overwatch2-Game-App-Design"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "Overwatch 2",
+        "summary": "A bold game companion concept translating team-based energy into an app experience with expressive UI and gaming-first hierarchy.",
+        "hero": {
+          "title": "Overwatch 2 Game App Design",
+          "subtitle": "Game Companion",
+          "image": "https://cdn.dribbble.com/userupload/26909773/file/original-3932d2773fb3d1b4c7ad60dcfee1cda7.png?resize=1600x1200",
+          "alt": "Overwatch 2 Game App Design",
+          "href": "https://dribbble.com/shots/11124093-Overwatch2-Game-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A bold game companion concept translating team-based energy into an app experience with expressive UI and gaming-first hierarchy."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Overwatch 2 Game App Design",
+                "meta": "Game Companion",
+                "image": "https://cdn.dribbble.com/userupload/26909773/file/original-3932d2773fb3d1b4c7ad60dcfee1cda7.png?resize=1600x1200",
+                "alt": "Overwatch 2 Game App Design",
+                "href": "https://dribbble.com/shots/11124093-Overwatch2-Game-App-Design"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "music-app-concept",
+      "title": "Music App",
+      "eyebrow": "App Concept",
+      "summary": "A sleek music listening concept balancing discovery, playlist moments, and immersive visual rhythm across multiple interface states.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Music App Design",
+          "meta": "Media App",
+          "image": "https://cdn.dribbble.com/userupload/26774913/file/original-d54ac4ec7d2a22e46b4a728068af1ab7.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/11020395-Music-App-Design"
+        },
+        {
+          "title": "Music App Design 2",
+          "meta": "Media App",
+          "image": "https://cdn.dribbble.com/userupload/26787208/file/original-0811d1b2560190b488388f97f0cb6c88.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/11032881-Music-App-Design-2"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "Music App",
+        "summary": "A sleek music listening concept balancing discovery, playlist moments, and immersive visual rhythm across multiple interface states.",
+        "hero": {
+          "title": "Music App Design",
+          "subtitle": "Media App",
+          "image": "https://cdn.dribbble.com/userupload/26774913/file/original-d54ac4ec7d2a22e46b4a728068af1ab7.png?resize=1600x1200",
+          "alt": "Music App Design",
+          "href": "https://dribbble.com/shots/11020395-Music-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A sleek music listening concept balancing discovery, playlist moments, and immersive visual rhythm across multiple interface states."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Music App Design",
+                "meta": "Media App",
+                "image": "https://cdn.dribbble.com/userupload/26774913/file/original-d54ac4ec7d2a22e46b4a728068af1ab7.png?resize=1600x1200",
+                "alt": "Music App Design",
+                "href": "https://dribbble.com/shots/11020395-Music-App-Design"
+              },
+              {
+                "title": "Music App Design 2",
+                "meta": "Media App",
+                "image": "https://cdn.dribbble.com/userupload/26787208/file/original-0811d1b2560190b488388f97f0cb6c88.png?resize=1600x1200",
+                "alt": "Music App Design 2",
+                "href": "https://dribbble.com/shots/11032881-Music-App-Design-2"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "library-podcast",
+      "title": "Library & Podcast",
+      "eyebrow": "App Concept",
+      "summary": "A content-first concept exploring library browsing and podcast listening in a calm editorial interface system.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Library App Design",
+          "meta": "Content App",
+          "image": "https://cdn.dribbble.com/userupload/26601215/file/original-cc8fc158f777f814aa6c0ecedca009b4.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/10865368-Library-App-Design"
+        },
+        {
+          "title": "Library and Podcast Application",
+          "meta": "Content App",
+          "image": "https://cdn.dribbble.com/userupload/26634360/file/original-a814121c8f2dceb33261dcfb547fd50c.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/10880268-Library-and-Podcast-Application"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "Library & Podcast",
+        "summary": "A content-first concept exploring library browsing and podcast listening in a calm editorial interface system.",
+        "hero": {
+          "title": "Library App Design",
+          "subtitle": "Content App",
+          "image": "https://cdn.dribbble.com/userupload/26601215/file/original-cc8fc158f777f814aa6c0ecedca009b4.png?resize=1600x1200",
+          "alt": "Library App Design",
+          "href": "https://dribbble.com/shots/10865368-Library-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A content-first concept exploring library browsing and podcast listening in a calm editorial interface system."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Library App Design",
+                "meta": "Content App",
+                "image": "https://cdn.dribbble.com/userupload/26601215/file/original-cc8fc158f777f814aa6c0ecedca009b4.png?resize=1600x1200",
+                "alt": "Library App Design",
+                "href": "https://dribbble.com/shots/10865368-Library-App-Design"
+              },
+              {
+                "title": "Library and Podcast Application",
+                "meta": "Content App",
+                "image": "https://cdn.dribbble.com/userupload/26634360/file/original-a814121c8f2dceb33261dcfb547fd50c.png?resize=1600x1200",
+                "alt": "Library and Podcast Application",
+                "href": "https://dribbble.com/shots/10880268-Library-and-Podcast-Application"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "vr-store",
+      "title": "VR Store",
+      "eyebrow": "App Concept",
+      "summary": "A concept storefront for VR products and experiences, combining catalog browsing, commerce, and immersive visual merchandising.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "VR Store App",
+          "meta": "Retail App",
+          "image": "https://cdn.dribbble.com/userupload/26735566/file/original-eb97b928b228df752a3b323e1707c0df.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/10993599-VR-Store-App"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "VR Store",
+        "summary": "A concept storefront for VR products and experiences, combining catalog browsing, commerce, and immersive visual merchandising.",
+        "hero": {
+          "title": "VR Store App",
+          "subtitle": "Retail App",
+          "image": "https://cdn.dribbble.com/userupload/26735566/file/original-eb97b928b228df752a3b323e1707c0df.png?resize=1600x1200",
+          "alt": "VR Store App",
+          "href": "https://dribbble.com/shots/10993599-VR-Store-App"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A concept storefront for VR products and experiences, combining catalog browsing, commerce, and immersive visual merchandising."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "VR Store App",
+                "meta": "Retail App",
+                "image": "https://cdn.dribbble.com/userupload/26735566/file/original-eb97b928b228df752a3b323e1707c0df.png?resize=1600x1200",
+                "alt": "VR Store App",
+                "href": "https://dribbble.com/shots/10993599-VR-Store-App"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "valorant-app",
+      "title": "Valorant",
+      "eyebrow": "App Concept",
+      "summary": "A tactical game companion concept exploring match-ready dashboards, agent-focused content, and competitive progression moments.",
+      "categoryId": "explore",
+      "tags": [
+        "game"
+      ],
+      "items": [
+        {
+          "title": "Valorant App Design",
+          "meta": "Game Companion",
+          "image": "https://cdn.dribbble.com/userupload/26750285/file/original-0d35b92743702b11a98e6b6fa79caa98.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/11007139-Valorant-App-Design"
+        },
+        {
+          "title": "Valorant App Design",
+          "meta": "Game Companion",
+          "image": "https://cdn.dribbble.com/userupload/27492435/file/original-5418f864525558bae15ceafcdc5c31df.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/11892823-Valorant-App-Design"
+        },
+        {
+          "title": "Valorant App Design 2",
+          "meta": "Game Companion",
+          "image": "https://cdn.dribbble.com/userupload/27505512/file/original-ccbb5d68be7c3c0f7636fe6779d47332.png?resize=1600x1200",
+          "href": "https://dribbble.com/shots/11914195-Valorant-App-Design-2"
+        }
+      ],
+      "detail": {
+        "eyebrow": "App Concept",
+        "title": "Valorant",
+        "summary": "A tactical game companion concept exploring match-ready dashboards, agent-focused content, and competitive progression moments.",
+        "hero": {
+          "title": "Valorant App Design",
+          "subtitle": "Game Companion",
+          "image": "https://cdn.dribbble.com/userupload/26750285/file/original-0d35b92743702b11a98e6b6fa79caa98.png?resize=1600x1200",
+          "alt": "Valorant App Design",
+          "href": "https://dribbble.com/shots/11007139-Valorant-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A tactical game companion concept exploring match-ready dashboards, agent-focused content, and competitive progression moments."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Valorant App Design",
+                "meta": "Game Companion",
+                "image": "https://cdn.dribbble.com/userupload/26750285/file/original-0d35b92743702b11a98e6b6fa79caa98.png?resize=1600x1200",
+                "alt": "Valorant App Design",
+                "href": "https://dribbble.com/shots/11007139-Valorant-App-Design"
+              },
+              {
+                "title": "Valorant App Design",
+                "meta": "Game Companion",
+                "image": "https://cdn.dribbble.com/userupload/27492435/file/original-5418f864525558bae15ceafcdc5c31df.png?resize=1600x1200",
+                "alt": "Valorant App Design",
+                "href": "https://dribbble.com/shots/11892823-Valorant-App-Design"
+              },
+              {
+                "title": "Valorant App Design 2",
+                "meta": "Game Companion",
+                "image": "https://cdn.dribbble.com/userupload/27505512/file/original-ccbb5d68be7c3c0f7636fe6779d47332.png?resize=1600x1200",
+                "alt": "Valorant App Design 2",
+                "href": "https://dribbble.com/shots/11914195-Valorant-App-Design-2"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "opensea-redesign",
+      "title": "Opensea",
+      "eyebrow": "Web3 Redesign",
+      "summary": "A marketplace redesign concept for Opensea, focused on clearer NFT discovery, more premium browsing, and a stronger web3 editorial layer across key product surfaces.",
+      "categoryId": "explore",
+      "tags": [
+        "web",
+        "product"
+      ],
+      "items": [
+        {
+          "title": "Opensea Redesign",
+          "meta": "Web3 Marketplace",
+          "image": "https://cdn.dribbble.com/userupload/6446462/file/original-b549891123bd1269877bf3d73d53ab4f.png?resize=1600x1200",
+          "alt": "Opensea Redesign",
+          "href": "https://dribbble.com/shots/21264820-Opensea-Redesign"
+        },
+        {
+          "title": "Opensea Redesign Part 2",
+          "meta": "Web3 Marketplace",
+          "image": "https://cdn.dribbble.com/userupload/6520857/file/original-ec96af8ea0ee06889694d64e191a8dda.png?resize=1600x1200",
+          "alt": "Opensea Redesign Part 2",
+          "href": "https://dribbble.com/shots/21290274-Opensea-Redesign-Part-2"
+        },
+        {
+          "title": "Opensea Mobile Redesign",
+          "meta": "Web3 Mobile App",
+          "image": "assets/explore/opensea-redesign-mobile.png",
+          "alt": "Opensea Mobile Redesign",
+          "href": "https://dribbble.com/shots/21264820-Opensea-Redesign"
+        }
+      ],
+      "detail": {
+        "eyebrow": "Web3 Redesign",
+        "title": "Opensea",
+        "summary": "A marketplace redesign concept for Opensea, focused on clearer NFT discovery, more premium browsing, and a stronger web3 editorial layer across key product surfaces.",
+        "hero": {
+          "title": "Opensea Redesign",
+          "subtitle": "Web3 Marketplace",
+          "image": "https://cdn.dribbble.com/userupload/6446462/file/original-b549891123bd1269877bf3d73d53ab4f.png?resize=1600x1200",
+          "alt": "Opensea Redesign",
+          "href": "https://dribbble.com/shots/21264820-Opensea-Redesign"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A marketplace redesign concept for Opensea, focused on clearer NFT discovery, more premium browsing, and a stronger web3 editorial layer across key product surfaces."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Opensea Redesign",
+                "meta": "Web3 Marketplace",
+                "image": "https://cdn.dribbble.com/userupload/6446462/file/original-b549891123bd1269877bf3d73d53ab4f.png?resize=1600x1200",
+                "alt": "Opensea Redesign",
+                "href": "https://dribbble.com/shots/21264820-Opensea-Redesign"
+              },
+              {
+                "title": "Opensea Redesign Part 2",
+                "meta": "Web3 Marketplace",
+                "image": "https://cdn.dribbble.com/userupload/6520857/file/original-ec96af8ea0ee06889694d64e191a8dda.png?resize=1600x1200",
+                "alt": "Opensea Redesign Part 2",
+                "href": "https://dribbble.com/shots/21290274-Opensea-Redesign-Part-2"
+              },
+              {
+                "title": "Opensea Mobile Redesign",
+                "meta": "Web3 Mobile App",
+                "image": "assets/explore/opensea-redesign-mobile.png",
+                "alt": "Opensea Mobile Redesign",
+                "href": "https://dribbble.com/shots/21264820-Opensea-Redesign"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "mosey-ai",
+      "title": "Mosey AI",
+      "eyebrow": "AI Product Design",
+      "summary": "An AI assistant product concept spanning onboarding, conversational UI, and a richer dashboard experience designed to make advanced AI workflows feel clear, useful, and calm.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile",
+        "web"
+      ],
+      "items": [
+        {
+          "title": "Mosey AI Assistant",
+          "meta": "AI Assistant",
+          "image": "assets/explore/mosey-ai-assistant.png",
+          "alt": "Mosey AI Assistant",
+          "href": "https://dribbble.com/shots/27150051-Mosey-AI-Assistant",
+          "video": "assets/explore/mosey-cover.mp4",
+          "poster": "assets/explore/mosey-ai-assistant.png"
+        },
+        {
+          "title": "Mosey AI App Design",
+          "meta": "AI App Design",
+          "image": "https://cdn.dribbble.com/userupload/47003501/file/9cd93f019b7f6d37ac8646acf9829ce4.png?resize=1600x1200",
+          "alt": "Mosey AI App Design",
+          "href": "https://dribbble.com/shots/27165573-Mosey-AI-App-Design"
+        },
+        {
+          "title": "Mosey AI Assistant - App Design",
+          "meta": "AI Assistant",
+          "image": "assets/explore/mosey-assistant-app.png",
+          "alt": "Mosey AI Assistant App Design",
+          "href": "https://dribbble.com/shots/27150051-Mosey-AI-Assistant"
+        },
+        {
+          "title": "Mosey AI Dashboard - Overview",
+          "meta": "AI Dashboard",
+          "image": "assets/explore/mosey-dashboard-1.png",
+          "alt": "Mosey AI Dashboard Overview",
+          "href": "https://dribbble.com/shots/27186350-Mosey-AI-Assistant-Dashboard"
+        },
+        {
+          "title": "Mosey AI Dashboard - Components",
+          "meta": "AI Dashboard",
+          "image": "assets/explore/mosey-dashboard-2.png",
+          "alt": "Mosey AI Dashboard Components",
+          "href": "https://dribbble.com/shots/27186350-Mosey-AI-Assistant-Dashboard"
+        },
+        {
+          "title": "Mosey AI Dashboard - Design System",
+          "meta": "AI Dashboard",
+          "image": "assets/explore/mosey-dashboard-3.png",
+          "alt": "Mosey AI Dashboard Design System",
+          "href": "https://dribbble.com/shots/27186350-Mosey-AI-Assistant-Dashboard"
+        }
+      ],
+      "detail": {
+        "eyebrow": "AI Product Design",
+        "title": "Mosey AI",
+        "summary": "An AI assistant product concept spanning onboarding, conversational UI, and a richer dashboard experience designed to make advanced AI workflows feel clear, useful, and calm.",
+        "hero": {
+          "title": "Mosey AI Assistant",
+          "subtitle": "AI Assistant",
+          "image": "assets/explore/mosey-ai-assistant.png",
+          "alt": "Mosey AI Assistant",
+          "href": "https://dribbble.com/shots/27150051-Mosey-AI-Assistant",
+          "video": "assets/explore/mosey-cover.mp4",
+          "poster": "assets/explore/mosey-ai-assistant.png"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "An AI assistant product concept spanning onboarding, conversational UI, and a richer dashboard experience designed to make advanced AI workflows feel clear, useful, and calm."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Mosey AI Assistant",
+                "meta": "AI Assistant",
+                "image": "assets/explore/mosey-ai-assistant.png",
+                "alt": "Mosey AI Assistant",
+                "href": "https://dribbble.com/shots/27150051-Mosey-AI-Assistant"
+              },
+              {
+                "title": "Mosey AI App Design",
+                "meta": "AI App Design",
+                "image": "https://cdn.dribbble.com/userupload/47003501/file/9cd93f019b7f6d37ac8646acf9829ce4.png?resize=1600x1200",
+                "alt": "Mosey AI App Design",
+                "href": "https://dribbble.com/shots/27165573-Mosey-AI-App-Design"
+              },
+              {
+                "title": "Mosey AI Assistant Dashboard",
+                "meta": "AI Dashboard",
+                "image": "assets/explore/mosey-ai-dashboard.png",
+                "alt": "Mosey AI Assistant Dashboard",
+                "href": "https://dribbble.com/shots/27186350-Mosey-AI-Assistant-Dashboard"
+              },
+              {
+                "title": "Mosey AI Assistant - App Design",
+                "meta": "AI Assistant",
+                "image": "assets/explore/mosey-assistant-app.png",
+                "alt": "Mosey AI Assistant App Design",
+                "href": "https://dribbble.com/shots/27150051-Mosey-AI-Assistant"
+              },
+              {
+                "title": "Mosey AI Dashboard - Overview",
+                "meta": "AI Dashboard",
+                "image": "assets/explore/mosey-dashboard-1.png",
+                "alt": "Mosey AI Dashboard Overview",
+                "href": "https://dribbble.com/shots/27186350-Mosey-AI-Assistant-Dashboard"
+              },
+              {
+                "title": "Mosey AI Dashboard - Components",
+                "meta": "AI Dashboard",
+                "image": "assets/explore/mosey-dashboard-2.png",
+                "alt": "Mosey AI Dashboard Components",
+                "href": "https://dribbble.com/shots/27186350-Mosey-AI-Assistant-Dashboard"
+              },
+              {
+                "title": "Mosey AI Dashboard - Design System",
+                "meta": "AI Dashboard",
+                "image": "assets/explore/mosey-dashboard-3.png",
+                "alt": "Mosey AI Dashboard Design System",
+                "href": "https://dribbble.com/shots/27186350-Mosey-AI-Assistant-Dashboard"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "playstation-5-web",
+      "title": "Playstation 5 Web",
+      "eyebrow": "Web Design",
+      "summary": "A cinematic Playstation 5 landing experience that frames console launches, exclusive titles, and hardware storytelling through a more immersive fullscreen web layout.",
+      "categoryId": "explore",
+      "tags": [
+        "web"
+      ],
+      "items": [
+        {
+          "title": "Playstation 5 Web Design",
+          "meta": "Cinematic Landing Page",
+          "image": "https://cdn.dribbble.com/userupload/28909732/file/original-afb0e2a3ca635cbfb8f090d8ecf9200c.png?resize=1600x1200",
+          "alt": "Playstation 5 Web Design",
+          "href": "https://dribbble.com/shots/14282778-Playstation-5-Web-design"
+        }
+      ],
+      "detail": {
+        "eyebrow": "Web Design",
+        "title": "Playstation 5 Web",
+        "summary": "A cinematic Playstation 5 landing experience that frames console launches, exclusive titles, and hardware storytelling through a more immersive fullscreen web layout.",
+        "hero": {
+          "title": "Playstation 5 Web Design",
+          "subtitle": "Cinematic Landing Page",
+          "image": "https://cdn.dribbble.com/userupload/28909732/file/original-afb0e2a3ca635cbfb8f090d8ecf9200c.png?resize=1600x1200",
+          "alt": "Playstation 5 Web Design",
+          "href": "https://dribbble.com/shots/14282778-Playstation-5-Web-design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A cinematic Playstation 5 landing experience that frames console launches, exclusive titles, and hardware storytelling through a more immersive fullscreen web layout."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Playstation 5 Web Design",
+                "meta": "Cinematic Landing Page",
+                "image": "https://cdn.dribbble.com/userupload/28909732/file/original-afb0e2a3ca635cbfb8f090d8ecf9200c.png?resize=1600x1200",
+                "alt": "Playstation 5 Web Design",
+                "href": "https://dribbble.com/shots/14282778-Playstation-5-Web-design"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "essentials-shopping-app",
+      "title": "Essentials Shopping App",
+      "eyebrow": "Mobile App Design",
+      "summary": "A refined e-commerce mobile concept with clean product browsing and a modern shopping experience.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Essentials Shopping App Design",
+          "meta": "E-commerce",
+          "image": "https://cdn.dribbble.com/userupload/13631111/file/original-4938b926518669252dfd3b9420e977e9.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/23844327-Essentials-Shopping-App-Design"
+        },
+        {
+          "title": "Essentials Shopping App - Screens",
+          "meta": "E-commerce",
+          "image": "assets/explore/essentials-shopping-1.png",
+          "alt": "Essentials Shopping App Screens",
+          "href": "https://dribbble.com/shots/23844327-Essentials-Shopping-App-Design"
+        },
+        {
+          "title": "Essentials Shopping App - Details",
+          "meta": "E-commerce",
+          "image": "assets/explore/essentials-shopping-2.png",
+          "alt": "Essentials Shopping App Details",
+          "href": "https://dribbble.com/shots/23844327-Essentials-Shopping-App-Design"
+        }
+      ],
+      "detail": {
+        "eyebrow": "Mobile App Design",
+        "title": "Essentials Shopping App",
+        "summary": "A refined e-commerce mobile concept with clean product browsing and a modern shopping experience.",
+        "hero": {
+          "title": "Essentials Shopping App Design",
+          "subtitle": "E-commerce",
+          "image": "https://cdn.dribbble.com/userupload/13631111/file/original-4938b926518669252dfd3b9420e977e9.png?resize=1600x0",
+          "alt": "Essentials Shopping App Design",
+          "href": "https://dribbble.com/shots/23844327-Essentials-Shopping-App-Design"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A refined e-commerce mobile concept with clean product browsing and a modern shopping experience."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Essentials Shopping App Design",
+                "meta": "E-commerce",
+                "image": "https://cdn.dribbble.com/userupload/13631111/file/original-4938b926518669252dfd3b9420e977e9.png?resize=1600x0",
+                "alt": "Essentials Shopping App Design",
+                "href": "https://dribbble.com/shots/23844327-Essentials-Shopping-App-Design"
+              },
+              {
+                "title": "Essentials Shopping App - Screens",
+                "meta": "E-commerce",
+                "image": "assets/explore/essentials-shopping-1.png",
+                "alt": "Essentials Shopping App Screens",
+                "href": "https://dribbble.com/shots/23844327-Essentials-Shopping-App-Design"
+              },
+              {
+                "title": "Essentials Shopping App - Details",
+                "meta": "E-commerce",
+                "image": "assets/explore/essentials-shopping-2.png",
+                "alt": "Essentials Shopping App Details",
+                "href": "https://dribbble.com/shots/23844327-Essentials-Shopping-App-Design"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "spiderman-mobile",
+      "title": "Marvel's Spider-Man Mobile",
+      "eyebrow": "Mobile App Design",
+      "summary": "A cinematic gaming companion app concept inspired by Marvel's Spider-Man universe.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Marvel's Spider-Man Mobile App",
+          "meta": "Gaming",
+          "image": "https://cdn.dribbble.com/userupload/10893287/file/original-c65a0d3148a310cb2cf6cb790684d9bc.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/22869348-Marvel-s-Spider-Man-Mobile-App"
+        },
+        {
+          "title": "Marvel's Spider-Man - Screens",
+          "meta": "Gaming",
+          "image": "assets/explore/spiderman-mobile-1.png",
+          "alt": "Marvel's Spider-Man Screens",
+          "href": "https://dribbble.com/shots/22869348-Marvel-s-Spider-Man-Mobile-App"
+        },
+        {
+          "title": "Marvel's Spider-Man - Details",
+          "meta": "Gaming",
+          "image": "assets/explore/spiderman-mobile-2.png",
+          "alt": "Marvel's Spider-Man Details",
+          "href": "https://dribbble.com/shots/22869348-Marvel-s-Spider-Man-Mobile-App"
+        }
+      ],
+      "detail": {
+        "eyebrow": "Mobile App Design",
+        "title": "Marvel's Spider-Man Mobile",
+        "summary": "A cinematic gaming companion app concept inspired by Marvel's Spider-Man universe.",
+        "hero": {
+          "title": "Marvel's Spider-Man Mobile App",
+          "subtitle": "Gaming",
+          "image": "https://cdn.dribbble.com/userupload/10893287/file/original-c65a0d3148a310cb2cf6cb790684d9bc.png?resize=1600x0",
+          "alt": "Marvel's Spider-Man Mobile App",
+          "href": "https://dribbble.com/shots/22869348-Marvel-s-Spider-Man-Mobile-App"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A cinematic gaming companion app concept inspired by Marvel's Spider-Man universe."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Marvel's Spider-Man Mobile App",
+                "meta": "Gaming",
+                "image": "https://cdn.dribbble.com/userupload/10893287/file/original-c65a0d3148a310cb2cf6cb790684d9bc.png?resize=1600x0",
+                "alt": "Marvel's Spider-Man Mobile App",
+                "href": "https://dribbble.com/shots/22869348-Marvel-s-Spider-Man-Mobile-App"
+              },
+              {
+                "title": "Marvel's Spider-Man - Screens",
+                "meta": "Gaming",
+                "image": "assets/explore/spiderman-mobile-1.png",
+                "alt": "Marvel's Spider-Man Screens",
+                "href": "https://dribbble.com/shots/22869348-Marvel-s-Spider-Man-Mobile-App"
+              },
+              {
+                "title": "Marvel's Spider-Man - Details",
+                "meta": "Gaming",
+                "image": "assets/explore/spiderman-mobile-2.png",
+                "alt": "Marvel's Spider-Man Details",
+                "href": "https://dribbble.com/shots/22869348-Marvel-s-Spider-Man-Mobile-App"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "assassins-creed-mirage",
+      "title": "Assassin's Creed Mirage",
+      "eyebrow": "Mobile App Design",
+      "summary": "A dark-themed gaming mobile concept bringing the Assassin's Creed Mirage universe to a companion app experience.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Assassin's Creed Mirage Mobile App",
+          "meta": "Gaming",
+          "image": "https://cdn.dribbble.com/userupload/10640787/file/original-555e4fbe0a23b3f556433003dd9e5406.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/22775109-Assassins-Creed-Mirage-Mobile-App"
+        },
+        {
+          "title": "Assassin's Creed Mirage - Screens",
+          "meta": "Gaming",
+          "image": "assets/explore/assassins-creed-mirage-1.png",
+          "alt": "Assassin's Creed Mirage Screens",
+          "href": "https://dribbble.com/shots/22775109-Assassins-Creed-Mirage-Mobile-App"
+        },
+        {
+          "title": "Assassin's Creed Mirage - Details",
+          "meta": "Gaming",
+          "image": "assets/explore/assassins-creed-mirage-2.png",
+          "alt": "Assassin's Creed Mirage Details",
+          "href": "https://dribbble.com/shots/22775109-Assassins-Creed-Mirage-Mobile-App"
+        },
+        {
+          "title": "Assassin's Creed Mirage - Exploration",
+          "meta": "Gaming",
+          "image": "assets/explore/assassins-creed-mirage-3.png",
+          "alt": "Assassin's Creed Mirage Exploration",
+          "href": "https://dribbble.com/shots/22775109-Assassins-Creed-Mirage-Mobile-App"
+        }
+      ],
+      "detail": {
+        "eyebrow": "Mobile App Design",
+        "title": "Assassin's Creed Mirage",
+        "summary": "A dark-themed gaming mobile concept bringing the Assassin's Creed Mirage universe to a companion app experience.",
+        "hero": {
+          "title": "Assassin's Creed Mirage Mobile App",
+          "subtitle": "Gaming",
+          "image": "https://cdn.dribbble.com/userupload/10640787/file/original-555e4fbe0a23b3f556433003dd9e5406.png?resize=1600x0",
+          "alt": "Assassin's Creed Mirage Mobile App",
+          "href": "https://dribbble.com/shots/22775109-Assassins-Creed-Mirage-Mobile-App"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A dark-themed gaming mobile concept bringing the Assassin's Creed Mirage universe to a companion app experience."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Assassin's Creed Mirage Mobile App",
+                "meta": "Gaming",
+                "image": "https://cdn.dribbble.com/userupload/10640787/file/original-555e4fbe0a23b3f556433003dd9e5406.png?resize=1600x0",
+                "alt": "Assassin's Creed Mirage Mobile App",
+                "href": "https://dribbble.com/shots/22775109-Assassins-Creed-Mirage-Mobile-App"
+              },
+              {
+                "title": "Assassin's Creed Mirage - Screens",
+                "meta": "Gaming",
+                "image": "assets/explore/assassins-creed-mirage-1.png",
+                "alt": "Assassin's Creed Mirage Screens",
+                "href": "https://dribbble.com/shots/22775109-Assassins-Creed-Mirage-Mobile-App"
+              },
+              {
+                "title": "Assassin's Creed Mirage - Details",
+                "meta": "Gaming",
+                "image": "assets/explore/assassins-creed-mirage-2.png",
+                "alt": "Assassin's Creed Mirage Details",
+                "href": "https://dribbble.com/shots/22775109-Assassins-Creed-Mirage-Mobile-App"
+              },
+              {
+                "title": "Assassin's Creed Mirage - Exploration",
+                "meta": "Gaming",
+                "image": "assets/explore/assassins-creed-mirage-3.png",
+                "alt": "Assassin's Creed Mirage Exploration",
+                "href": "https://dribbble.com/shots/22775109-Assassins-Creed-Mirage-Mobile-App"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "starfield-mobile",
+      "title": "Starfield Mobile App",
+      "eyebrow": "Mobile App Design",
+      "summary": "A space-themed mobile companion concept for Starfield with immersive visual storytelling and cinematic UI.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile"
+      ],
+      "items": [
+        {
+          "title": "Starfield Mobile App",
+          "meta": "Gaming",
+          "image": "https://cdn.dribbble.com/userupload/10303349/file/original-afa0f803e302528f91305248f407c30f.png?resize=1600x0",
+          "href": "https://dribbble.com/shots/22648783-Starfield-mobile-app"
+        }
+      ],
+      "detail": {
+        "eyebrow": "Mobile App Design",
+        "title": "Starfield Mobile App",
+        "summary": "A space-themed mobile companion concept for Starfield with immersive visual storytelling and cinematic UI.",
+        "hero": {
+          "title": "Starfield Mobile App",
+          "subtitle": "Gaming",
+          "image": "https://cdn.dribbble.com/userupload/10303349/file/original-afa0f803e302528f91305248f407c30f.png?resize=1600x0",
+          "alt": "Starfield Mobile App",
+          "href": "https://dribbble.com/shots/22648783-Starfield-mobile-app"
+        },
+        "sections": [
+          {
+            "id": "overview",
+            "type": "text",
+            "heading": "Project Overview",
+            "body": "A space-themed mobile companion concept for Starfield with immersive visual storytelling and cinematic UI."
+          },
+          {
+            "id": "gallery",
+            "type": "gallery",
+            "heading": "Selected Works",
+            "items": [
+              {
+                "title": "Starfield Mobile App",
+                "meta": "Gaming",
+                "image": "https://cdn.dribbble.com/userupload/10303349/file/original-afa0f803e302528f91305248f407c30f.png?resize=1600x0",
+                "alt": "Starfield Mobile App",
+                "href": "https://dribbble.com/shots/22648783-Starfield-mobile-app"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
+</script>
+<script src="./assets/gallery-page.js"></script>
+</body>
+</html>

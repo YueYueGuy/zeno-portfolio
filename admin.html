@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zeno 作品集内容后台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hubot+Sans:wght@400;500;600;700&family=Lora:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f4ee;
+      --paper: rgba(255, 252, 247, 0.88);
+      --paper-strong: #fffdf8;
+      --line: rgba(26, 21, 17, 0.1);
+      --line-strong: rgba(26, 21, 17, 0.16);
+      --text: #181411;
+      --muted: #6d665f;
+      --soft: #8c8277;
+      --accent: #c3533f;
+      --accent-soft: rgba(195, 83, 63, 0.1);
+      --shadow: 0 28px 80px rgba(51, 36, 24, 0.08);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Hubot Sans', sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(195, 83, 63, 0.08), transparent 24%),
+        radial-gradient(circle at top right, rgba(80, 61, 46, 0.06), transparent 20%),
+        var(--bg);
+      padding: 28px;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .shell {
+      display: grid;
+      gap: 24px;
+    }
+
+    .hero,
+    .panel,
+    .series-card {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 26px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.74);
+      border: 1px solid var(--line);
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    h1 {
+      margin: 18px 0 0;
+      font-family: 'Lora', serif;
+      font-size: clamp(2.3rem, 5vw, 4.3rem);
+      line-height: 0.98;
+      letter-spacing: -0.05em;
+    }
+
+    .hero p {
+      margin: 16px 0 0;
+      max-width: 62ch;
+      font-size: 1rem;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+
+    .hero-actions,
+    .hero-stats,
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .hero-actions { margin-top: 24px; }
+
+    .button,
+    button,
+    input {
+      font: inherit;
+    }
+
+    .button,
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 11px 16px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.76);
+      color: var(--text);
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .button:hover,
+    button:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+    }
+
+    .button.primary,
+    button.primary {
+      background: var(--text);
+      color: #fbf8f4;
+      border-color: rgba(0,0,0,0.84);
+    }
+
+    .hero-note {
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.72));
+      border: 1px solid var(--line);
+    }
+
+    .hero-note h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-note p {
+      margin: 12px 0 0;
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+
+    .hero-stats {
+      margin-top: 18px;
+    }
+
+    .stat {
+      min-width: 110px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.75);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.2rem;
+      letter-spacing: -0.03em;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .panel {
+      border-radius: var(--radius-xl);
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .toolbar {
+      justify-content: space-between;
+    }
+
+    .search {
+      width: min(360px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.82);
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: rgba(195, 83, 63, 0.36);
+      box-shadow: 0 0 0 4px rgba(195, 83, 63, 0.08);
+    }
+
+    .series-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .category-list {
+      display: grid;
+      gap: 20px;
+    }
+
+    .category-section {
+      display: grid;
+      gap: 18px;
+      padding-top: 6px;
+      border-top: 1px solid var(--line);
+    }
+
+    .category-section:first-child {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .category-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .category-kicker {
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--soft);
+      margin-bottom: 8px;
+    }
+
+    .category-head h2 {
+      margin: 0;
+      font-size: 1.45rem;
+      letter-spacing: -0.03em;
+    }
+
+    .category-head p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      max-width: 58ch;
+      line-height: 1.7;
+      font-size: 0.92rem;
+    }
+
+    .category-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .status-row,
+    .panel-actions,
+    .creator-grid,
+    .creator-actions,
+    .creator-fields {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .status-row {
+      justify-content: space-between;
+    }
+
+    .panel-actions {
+      justify-content: flex-end;
+    }
+
+    .creator-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .creator-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      background: rgba(255,255,255,0.68);
+      display: grid;
+      gap: 14px;
+    }
+
+    .creator-card h3 {
+      margin: 0;
+      font-size: 1.04rem;
+      letter-spacing: -0.02em;
+    }
+
+    .creator-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.9rem;
+    }
+
+    .creator-fields {
+      align-items: stretch;
+    }
+
+    .creator-fields input,
+    .creator-fields select {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.86);
+      outline: none;
+    }
+
+    .creator-fields input:focus,
+    .creator-fields select:focus {
+      border-color: rgba(195, 83, 63, 0.36);
+      box-shadow: 0 0 0 4px rgba(195, 83, 63, 0.08);
+    }
+
+    .file-note,
+    .status-note {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .status-note[data-tone="success"] { color: #2f6b43; }
+    .status-note[data-tone="error"] { color: #9a3434; }
+
+    .series-card {
+      border-radius: var(--radius-lg);
+      padding: 15px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .series-cover {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      aspect-ratio: 16 / 10;
+      background: #ece5da;
+    }
+
+    .series-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .series-kicker {
+      font-size: 0.78rem;
+      font-weight: 650;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--soft);
+    }
+
+    .series-title {
+      font-size: 1.06rem;
+      font-weight: 650;
+      letter-spacing: -0.03em;
+    }
+
+    .series-summary {
+      color: var(--muted);
+      line-height: 1.58;
+      font-size: 0.88rem;
+    }
+
+    .series-meta,
+    .series-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .meta-chip,
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.72);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .tag-chip {
+      background: var(--accent-soft);
+      border-color: rgba(195, 83, 63, 0.16);
+      color: var(--accent);
+      font-weight: 650;
+    }
+
+    .series-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .empty {
+      border: 1px dashed var(--line-strong);
+      border-radius: 20px;
+      padding: 36px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(255,255,255,0.48);
+    }
+
+    @media (max-width: 960px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .creator-grid,
+      .series-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 16px; }
+      .hero,
+      .panel { padding: 18px; }
+      .series-grid { grid-template-columns: 1fr; }
+      .toolbar,
+      .status-row,
+      .panel-actions,
+      .category-head,
+      .category-actions,
+      .creator-fields { flex-direction: column; align-items: stretch; }
+      .search { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">本地后台</span>
+        <h1>像编辑工作室一样管理你的作品案例。</h1>
+        <p>在这里浏览你的项目系列，并进入带实时预览的独立编辑页。现在这套结构更接近一个轻量 CMS，而不是单纯的 JSON 编辑器。</p>
+        <div class="hero-actions">
+          <a class="button primary" href="./admin-edit.html">打开编辑器</a>
+          <a class="button" href="./index.html#gallery" target="_blank" rel="noopener">打开前台网站</a>
+        </div>
+      </div>
+      <aside class="hero-note">
+        <h2>使用方式</h2>
+        <p>从下方列表选择一个项目系列。每张卡片都会进入对应的编辑页，左侧负责内容编辑，右侧会实时渲染详情页预览。</p>
+        <div class="hero-stats" id="heroStats"></div>
+      </aside>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <input class="search" id="searchInput" type="search" placeholder="按标题、眉题或标签搜索">
+        <div class="panel-actions">
+          <button class="button" id="bindFileButton" type="button">绑定内容文件</button>
+          <button class="button" id="reloadButton" type="button">重新加载</button>
+          <button class="button primary" id="saveButton" type="button">保存更改</button>
+        </div>
+      </div>
+      <div class="status-row">
+        <div class="meta-chip" id="resultMeta">正在加载作品目录…</div>
+        <div class="file-note" id="fileNote">尚未绑定本地内容文件。</div>
+        <div class="status-note" id="statusNote"></div>
+      </div>
+      <div class="creator-grid">
+        <article class="creator-card">
+          <div>
+            <h3>新建分类</h3>
+            <p>按网站的 Tab 组织后台目录。新分类会出现在 OMS 中，方便你后续继续扩展。</p>
+          </div>
+          <div class="creator-fields">
+            <input id="categoryNameInput" type="text" placeholder="例如：Model">
+            <input id="categoryDescriptionInput" type="text" placeholder="分类说明（可选）">
+          </div>
+          <div class="creator-actions">
+            <button class="button accent" id="addCategoryButton" type="button">创建分类</button>
+          </div>
+        </article>
+        <article class="creator-card">
+          <div>
+            <h3>新建作品目录</h3>
+            <p>先选择分类，再创建一个作品目录。创建后就可以进入编辑页上传封面、图集和案例内容。</p>
+          </div>
+          <div class="creator-fields">
+            <select id="newSeriesCategorySelect"></select>
+            <input id="newSeriesTitleInput" type="text" placeholder="例如：ByteDance Growth System">
+          </div>
+          <div class="creator-actions">
+            <button class="button accent" id="addSeriesButton" type="button">创建作品目录</button>
+          </div>
+        </article>
+      </div>
+      <div class="category-list" id="seriesGrid"></div>
+    </section>
+  </div>
+
+  <script type="module" src="./assets/portfolio-admin-list.js"></script>
+</body>
+</html>
