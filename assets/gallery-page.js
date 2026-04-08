@@ -139,6 +139,7 @@ function buildCardElement(work) {
     img.dataset.src = work.image;
     img.alt = work.title;
     img.loading = 'lazy';
+    img.decoding = 'async';
     if (work.position) img.style.objectPosition = work.position;
     mediaDiv.appendChild(img);
   }
@@ -188,16 +189,41 @@ function initLazyMedia() {
     }
   }, {
     root: scrollRoot,
-    rootMargin: '200px 0px'
+    rootMargin: '600px 0px'
   });
 
   return observer;
+}
+
+function initScrollReveal() {
+  const scrollRoot = document.querySelector('.gallery-scroll');
+  let revealIndex = 0;
+  const revealObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const card = entry.target;
+      revealObserver.unobserve(card);
+      const delay = (revealIndex % 4) * 80;
+      revealIndex++;
+      card.style.transitionDelay = delay + 'ms';
+      requestAnimationFrame(() => {
+        card.classList.add('in-view');
+        setTimeout(() => { card.style.transitionDelay = ''; }, delay + 700);
+      });
+    }
+  }, {
+    root: scrollRoot,
+    threshold: 0.05,
+    rootMargin: '0px 0px -40px 0px'
+  });
+  return revealObserver;
 }
 
 function renderWall(works) {
   if (!els.stream) return;
 
   const observer = initLazyMedia();
+  const revealObserver = initScrollReveal();
   const BATCH = 12;
   let idx = 0;
 
@@ -207,6 +233,7 @@ function renderWall(works) {
     while (idx < end) {
       const card = buildCardElement(works[idx++]);
       observer.observe(card);
+      revealObserver.observe(card);
       frag.appendChild(card);
     }
     els.stream.appendChild(frag);

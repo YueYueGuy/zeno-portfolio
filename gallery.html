@@ -175,6 +175,8 @@
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
+      will-change: scroll-position;
+      transform: translateZ(0);
     }
 
     .gallery-scroll::-webkit-scrollbar {
@@ -187,6 +189,7 @@
       gap: 18px;
       padding: 0 6px;
       align-items: start;
+      transform: translateZ(0);
     }
 
     .gallery-card {
@@ -197,6 +200,25 @@
       overflow: hidden;
       border-radius: 16px;
       background: var(--surface);
+      contain: layout style paint;
+      content-visibility: auto;
+      contain-intrinsic-size: auto 300px;
+      transition: transform 260ms cubic-bezier(0.19, 1, 0.22, 1),
+                  opacity 600ms cubic-bezier(0.19, 1, 0.22, 1);
+      isolation: isolate;
+      box-shadow: 0 18px 50px rgba(15, 15, 15, 0.06);
+      opacity: 0;
+      transform: translateY(40px);
+    }
+
+    .gallery-card.in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .gallery-card.in-view:hover {
+      transform: translateY(-4px);
+    }
       transition: transform 260ms cubic-bezier(0.19, 1, 0.22, 1);
       isolation: isolate;
       box-shadow: 0 18px 50px rgba(15, 15, 15, 0.06);
@@ -209,11 +231,7 @@
       }
     }
 
-    .gallery-card:hover {
-      transform: translateY(-4px);
-    }
-
-    .gallery-card:focus-visible {
+    .gallery-card.in-view:focus-visible {
       outline: none;
       transform: translateY(-4px);
       box-shadow: 0 0 0 2px var(--focus-ring), 0 24px 60px rgba(26, 24, 22, 0.14);
@@ -453,7 +471,7 @@
     },
     {
       "id": "keyboard",
-      "label": "My Keyboard",
+      "label": "My Setup",
       "description": "用于管理键盘产品与相关图集。",
       "defaultTags": [
         "keyboard"
@@ -1037,6 +1055,127 @@
             "image": "assets/keyboard/neo80cu-08.webp",
             "alt": "Neo80 Cu component detail render",
             "href": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "volt20-keyboard",
+      "title": "Volt 2.0",
+      "eyebrow": "Percent Studio Keyboard Collection",
+      "summary": "A keyboard collection for Volt 2.0 by Percent Studio, featuring industrial renders, LED module details, and internal PCB views.",
+      "categoryId": "keyboard",
+      "tags": ["keyboard"],
+      "items": [
+        {"title": "Volt 2.0 Front View", "meta": "Keyboard collection cover", "image": "assets/keyboard/volt20/volt20-01.webp", "href": ""},
+        {"title": "Volt 2.0 Rear Detail", "meta": "Rear angle detail", "image": "assets/keyboard/volt20/volt20-02.webp", "href": ""},
+        {"title": "Volt 2.0 LED Module", "meta": "LED module close-up", "image": "assets/keyboard/volt20/volt20-03.webp", "href": ""},
+        {"title": "Volt 2.0 Screen Detail", "meta": "Screen module macro", "image": "assets/keyboard/volt20/volt20-04.webp", "href": ""},
+        {"title": "Volt 2.0 Controller", "meta": "Controller module", "image": "assets/keyboard/volt20/volt20-05.webp", "href": ""},
+        {"title": "Volt 2.0 PCB Internal", "meta": "Internal PCB view", "image": "assets/keyboard/volt20/volt20-06.webp", "href": ""}
+      ],
+      "detail": {
+        "eyebrow": "Keyboard Collection",
+        "title": "Volt 2.0",
+        "summary": "A product-focused collection for Volt 2.0 by Percent Studio.",
+        "hero": {"title": "Volt 2.0 by Percent Studio", "subtitle": "A full-size mechanical keyboard with integrated LED display", "image": "assets/keyboard/volt20/volt20-01.webp", "alt": "Volt 2.0 keyboard front view", "href": ""},
+        "sections": [
+          {"id": "volt20-overview", "type": "text", "label": "Overview", "heading": "A full-size keyboard with integrated display technology", "summary": "An opening overview for the Volt 2.0 series.", "body": "Volt 2.0 by Percent Studio is a full-size mechanical keyboard that integrates a programmable LED matrix display and screen module into its navigation cluster."},
+          {"id": "volt20-gallery", "type": "gallery", "label": "Gallery", "heading": "Volt 2.0 Collection", "items": [
+            {"title": "Volt 2.0 Front View", "meta": "Hero render", "image": "assets/keyboard/volt20/volt20-01.webp", "alt": "Volt 2.0 front view"},
+            {"title": "Volt 2.0 Rear Detail", "meta": "Rear angle", "image": "assets/keyboard/volt20/volt20-02.webp", "alt": "Volt 2.0 rear detail"},
+            {"title": "Volt 2.0 LED Module", "meta": "Close-up", "image": "assets/keyboard/volt20/volt20-03.webp", "alt": "Volt 2.0 LED module"},
+            {"title": "Volt 2.0 Screen Detail", "meta": "Macro shot", "image": "assets/keyboard/volt20/volt20-04.webp", "alt": "Volt 2.0 screen detail"},
+            {"title": "Volt 2.0 Controller", "meta": "Module detail", "image": "assets/keyboard/volt20/volt20-05.webp", "alt": "Volt 2.0 controller module"},
+            {"title": "Volt 2.0 PCB Internal", "meta": "Internal view", "image": "assets/keyboard/volt20/volt20-06.webp", "alt": "Volt 2.0 PCB internal"}
+          ]}
+        ]
+      }
+    },
+    {
+      "id": "tradex",
+      "title": "TradeX",
+      "eyebrow": "Digital Exchange",
+      "summary": "A crypto and stock trading app featuring spot trading, Web3 integration, DeFi services, and portfolio management.",
+      "categoryId": "explore",
+      "tags": [
+        "mobile",
+        "web3"
+      ],
+      "items": [
+        {
+          "title": "TradeX App Screens",
+          "meta": "Exchange App",
+          "image": "assets/explore/tradex-screens.png",
+          "alt": "TradeX app screens showing home, spot trading, and Web3 pages"
+        },
+        {
+          "title": "TradeX Mockups",
+          "meta": "Device Mockup",
+          "image": "assets/explore/tradex-mockups.png",
+          "alt": "TradeX app on multiple devices"
+        },
+        {
+          "title": "TradeX Scene 03",
+          "meta": "Scene Render",
+          "image": "assets/explore/tradex-scene-03.png",
+          "alt": "TradeX app scene render with Nothing Phone"
+        },
+        {
+          "title": "TradeX Scene 01",
+          "meta": "Scene Render",
+          "image": "assets/explore/tradex-scene-01.png",
+          "alt": "TradeX app scene render on bench"
+        }
+      ],
+      "detail": {
+        "eyebrow": "Exchange App Design",
+        "title": "TradeX Digital Exchange",
+        "summary": "A full-featured crypto and stock trading app with spot trading, Web3 carnival events, DeFi bonuses, and portfolio tracking.",
+        "hero": {
+          "title": "TradeX App Screens",
+          "subtitle": "Home, Spot Trading, and Web3 surfaces",
+          "image": "assets/explore/tradex-screens.png",
+          "alt": "TradeX app screens"
+        },
+        "sections": [
+          {
+            "id": "tradex-overview",
+            "type": "text",
+            "label": "Overview",
+            "heading": "A unified trading experience across crypto and stocks",
+            "summary": "Designing a dark-themed exchange app that bridges traditional finance and Web3.",
+            "body": "TradeX combines crypto trading, xStocks (tokenized equities), and Web3 services into a single mobile experience. The design balances information density with visual clarity, using a dark theme with neon green accents to convey a modern, professional trading environment."
+          },
+          {
+            "id": "tradex-mockups",
+            "type": "image",
+            "label": "Mockups",
+            "heading": "Device mockups on lunar surface",
+            "title": "TradeX Mockups",
+            "body": "Three devices displayed on a cinematic dark surface, showing the full range of app screens.",
+            "image": "assets/explore/tradex-mockups.png",
+            "alt": "TradeX device mockups"
+          },
+          {
+            "id": "tradex-scene-03",
+            "type": "image",
+            "label": "Scene",
+            "heading": "Nothing Phone paired with TradeX",
+            "title": "TradeX Scene 03",
+            "body": "A lifestyle scene placing the trading app alongside a Nothing Phone on a dotted desk surface.",
+            "image": "assets/explore/tradex-scene-03.png",
+            "alt": "TradeX scene render with Nothing Phone"
+          },
+          {
+            "id": "tradex-scene-01",
+            "type": "image",
+            "label": "Scene",
+            "heading": "Bench scene with spot trading view",
+            "title": "TradeX Scene 01",
+            "body": "A cinematic bench scene highlighting the spot trading interface in a real-world context.",
+            "image": "assets/explore/tradex-scene-01.png",
+            "alt": "TradeX scene render on bench"
           }
         ]
       }
