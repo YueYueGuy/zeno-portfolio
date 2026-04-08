@@ -18,7 +18,7 @@
     },
     {
       "id": "keyboard",
-      "label": "My Keyboard",
+      "label": "My Setup",
       "description": "用于管理键盘产品与相关图集。",
       "defaultTags": [
         "keyboard"

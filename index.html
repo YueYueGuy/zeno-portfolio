@@ -799,6 +799,84 @@
     .series-grid.keyboard-grid .series-card-main {
       aspect-ratio: 16 / 10;
     }
+    .setup-featured-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+    .setup-featured-item {
+      cursor: pointer;
+      transition: transform 400ms var(--ease-out-quart);
+    }
+    .setup-featured-item:hover {
+      transform: translateY(-4px);
+    }
+    .setup-featured-media {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      background: var(--bg-warm);
+      aspect-ratio: 1 / 1;
+      transform: perspective(900px) rotateX(var(--card-tilt-x, 0deg)) rotateY(var(--card-tilt-y, 0deg)) scale(var(--card-scale, 1));
+      transition: transform 400ms var(--ease-out-quart);
+    }
+    .setup-featured-media::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.36) 100%);
+      z-index: 1;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 340ms var(--ease-out-quart);
+    }
+    .setup-featured-item:hover .setup-featured-media::after {
+      opacity: 1;
+    }
+    .setup-featured-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 400ms var(--ease-out-quart);
+    }
+    .setup-featured-item:hover .setup-featured-media img {
+      transform: scale(1.07);
+    }
+    .setup-featured-title {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      z-index: 3;
+      font-size: 0.88rem;
+      font-weight: 650;
+      color: rgba(255, 255, 255, 0.96);
+      letter-spacing: -0.02em;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.34);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 340ms var(--ease-out-quart), transform 340ms var(--ease-out-quart);
+    }
+    .setup-featured-item:hover .setup-featured-title {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .setup-featured-meta {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.58);
+      margin-top: 5px;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 340ms var(--ease-out-quart), transform 340ms var(--ease-out-quart);
+    }
+    .setup-featured-item:hover .setup-featured-meta {
+      opacity: 1;
+      transform: translateY(0);
+    }
     .series-grid.game-grid .series-card-main::after {
       display: none;
     }
@@ -1296,6 +1374,12 @@
       display: grid;
       grid-template-columns: 1fr;
       gap: 22px;
+    }
+    .detail-shot-grid.setup-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .detail-shot-grid.setup-grid .detail-shot-media {
+      aspect-ratio: 1 / 1;
     }
     .detail-shot-card {
       display: grid;
@@ -2423,6 +2507,9 @@
         <a href="https://www.linkedin.com/in/%E8%B6%8A-%E5%BC%A0-bbab61283/" target="_blank" rel="noopener" aria-label="LinkedIn" class="footer-social-link">
   <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.001 9.55005C12.9181 8.61327 14.1121 8 15.501 8C18.5385 8 21.001 10.4624 21.001 13.5V21H19.001V13.5C19.001 11.567 17.434 10 15.501 10C13.568 10 12.001 11.567 12.001 13.5V21H10.001V8.5H12.001V9.55005ZM5.00098 6.5C4.17255 6.5 3.50098 5.82843 3.50098 5C3.50098 4.17157 4.17255 3.5 5.00098 3.5C5.8294 3.5 6.50098 4.17157 6.50098 5C6.50098 5.82843 5.8294 6.5 5.00098 6.5ZM4.00098 8.5H6.00098V21H4.00098V8.5Z"/></svg>
 </a>
+        <a href="https://www.instagram.com/yueyueguy/" target="_blank" rel="noopener" aria-label="Instagram" class="footer-social-link">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+</a>
       </div>
     </div>
   </aside>
@@ -2433,7 +2520,7 @@
       <div class="filter-tabs" role="toolbar" aria-label="Filter work categories">
         <button class="filter-tab active" type="button" data-filter="all" aria-pressed="true" aria-controls="galleryOverview">Explore</button>
         <button class="filter-tab" type="button" data-filter="product" aria-pressed="false" aria-controls="galleryOverview">Work</button>
-        <button class="filter-tab" type="button" data-filter="keyboard" aria-pressed="false" aria-controls="galleryOverview">My Keyboard</button>
+        <button class="filter-tab" type="button" data-filter="keyboard" aria-pressed="false" aria-controls="galleryOverview">My Setup</button>
         <button class="filter-tab" type="button" data-filter="game" aria-pressed="false" aria-controls="galleryOverview">Game</button>
         <button class="filter-tab" type="button" data-filter="podcast" aria-pressed="false" aria-controls="galleryOverview">Podcast</button>
       </div>
@@ -2474,7 +2561,7 @@
     },
     {
       "id": "keyboard",
-      "label": "My Keyboard",
+      "label": "My Setup",
       "description": "用于管理键盘产品与相关图集。",
       "defaultTags": [
         "keyboard"
@@ -6081,7 +6168,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (section.type === 'gallery') {
       const cards = (section.items || []).map(buildShotCard).join('');
-      return '<section class="detail-section detail-section-gallery" data-section-type="gallery">' + head + '<div class="detail-shot-grid">' + cards + '</div></section>';
+      const gridClass = section.gridClass ? ' ' + section.gridClass : '';
+      return '<section class="detail-section detail-section-gallery" data-section-type="gallery">' + head + '<div class="detail-shot-grid' + gridClass + '">' + cards + '</div></section>';
     }
 
     if (section.type === 'video') {
@@ -6106,10 +6194,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (prefersReducedMotion) return;
 
     const cards = Array.from(galleryOverview.querySelectorAll('.series-card'));
-    if (!cards.length) return;
+    const setupCards = Array.from(galleryOverview.querySelectorAll('.setup-featured-item'));
+    const allCards = cards.map(c => ({ card: c, media: c.querySelector('.series-card-main') }))
+      .concat(setupCards.map(c => ({ card: c, media: c.querySelector('.setup-featured-media') })));
+    if (!allCards.length) return;
 
-    const disposers = cards.map((card) => {
-      const media = card.querySelector('.series-card-main');
+    const disposers = allCards.map(({ card, media }) => {
       if (!media) return () => {};
 
       const handleMove = (event) => {
@@ -6178,7 +6268,10 @@ document.addEventListener('DOMContentLoaded', () => {
           : activeFilter === 'keyboard'
             ? 'keyboard-grid'
             : '';
-      galleryOverview.innerHTML = '<div class="series-grid ' + gridClass + '">' + visibleSeries.map(buildSeriesCard).join('') + '</div>';
+      const setupFeatured = activeFilter === 'keyboard'
+        ? '<div class="setup-featured-grid"><div class="setup-featured-item"><div class="setup-featured-media"><img src="assets/setup/mx-master-4.png" alt="Logitech MX Master 4" loading="lazy"><div class="setup-featured-title">MX Master 4<div class="setup-featured-meta">Logitech \u00b7 Ergonomic Mouse</div></div></div></div><div class="setup-featured-item"><div class="setup-featured-media"><img src="assets/setup/razer-viper-v4-pro.png" alt="Razer Viper V4 Pro" loading="lazy"><div class="setup-featured-title">Razer Viper V4 Pro<div class="setup-featured-meta">Razer \u00b7 Gaming Mouse</div></div></div></div></div>'
+        : '';
+      galleryOverview.innerHTML = setupFeatured + '<div class="series-grid ' + gridClass + '">' + visibleSeries.map(buildSeriesCard).join('') + '</div>';
     }
 
     galleryOverview.querySelectorAll('.series-card[data-series-interactive="true"]').forEach((card) => {
