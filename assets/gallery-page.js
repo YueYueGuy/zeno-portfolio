@@ -168,6 +168,13 @@ function initLazyMedia() {
       if (img) {
         img.src = img.dataset.src;
         img.removeAttribute('data-src');
+        const media = card.querySelector('.gallery-card-media');
+        if (img.complete) {
+          media?.classList.add('loaded');
+        } else {
+          img.addEventListener('load', () => { media?.classList.add('loaded'); }, { once: true });
+          img.addEventListener('error', () => { media?.classList.add('loaded'); }, { once: true });
+        }
       }
 
       const video = card.querySelector('video[data-src]');
@@ -175,6 +182,9 @@ function initLazyMedia() {
         video.src = video.dataset.src;
         video.removeAttribute('data-src');
         video.preload = 'metadata';
+        const media = card.querySelector('.gallery-card-media');
+        video.addEventListener('loadeddata', () => { media?.classList.add('loaded'); }, { once: true });
+        video.addEventListener('error', () => { media?.classList.add('loaded'); }, { once: true });
         if (typeof Plyr !== 'undefined') {
           new Plyr(video, {
             controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
