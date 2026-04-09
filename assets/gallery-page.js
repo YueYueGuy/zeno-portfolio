@@ -312,6 +312,27 @@ async function init() {
   renderWall(works);
   els.loader.hidden = true;
   announce(`Loaded ${works.length} works.`);
+
+  // Lenis smooth scroll
+  if (typeof Lenis !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const scrollRoot = document.querySelector('.gallery-scroll');
+    if (scrollRoot) {
+      const lenis = new Lenis({
+        wrapper: scrollRoot,
+        content: document.getElementById('galleryStream'),
+        lerp: 0.08,
+        duration: 1.2,
+        smoothWheel: true,
+        smoothTouch: false,
+        wheelMultiplier: 1
+      });
+      function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
+    }
+  }
 }
 
 init().catch((error) => {
