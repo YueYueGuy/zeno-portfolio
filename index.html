@@ -14,6 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/plyr@3.7.8/dist/plyr.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js" defer></script>
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
@@ -38,9 +39,15 @@
     html {
       height: 100%;
       font-size: 16px;
-      scroll-behavior: smooth;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+    }
+
+    html.lenis, html.lenis body {
+      height: auto;
+    }
+    html.lenis .lenis-smooth {
+      scroll-behavior: auto !important;
     }
 
     body {
@@ -269,7 +276,6 @@
       overflow-y: auto;
       overflow-x: visible;
       overscroll-behavior: contain;
-      scroll-behavior: smooth;
       scroll-padding-top: 24px;
       display: flex;
       flex-direction: column;
@@ -309,7 +315,6 @@
       height: 100%;
       overflow-y: auto;
       overscroll-behavior: contain;
-      scroll-behavior: smooth;
       scrollbar-width: none;
       -ms-overflow-style: none;
       padding-right: 8px;
@@ -6085,6 +6090,183 @@ document.addEventListener('DOMContentLoaded', () => {
   let lastContentSyncStamp = '';
   const loaderStartTime = performance.now();
 
+  /* ---- Lenis smooth scroll ---- */
+  let lenis = null;
+  let lenisTickerId = null;
+  const lenisEnabled = !prefersReducedMotion && typeof Lenis !== 'undefined';
+
+  function getLenisWrapper() {
+    if (window.innerWidth < 1025) return undefined;
+    if (document.body.dataset.galleryView === 'detail') return undefined;
+    return mainPanel || undefined;
+  }
+
+  function getLenisContent() {
+    const wrapper = getLenisWrapper();
+    if (!wrapper || wrapper === window) return undefined;
+    return galleryScroll || undefined;
+  }
+
+  function createLenis() {
+    destroyLenis();
+    if (!lenisEnabled) return;
+    const wrapper = getLenisWrapper();
+    const content = wrapper ? getLenisContent() : undefined;
+    const opts = {
+      lerp: 0.08,
+      duration: 1.2,
+      smoothWheel: true,
+      smoothTouch: false,
+      wheelMultiplier: 1
+    };
+    if (wrapper) { opts.wrapper = wrapper; }
+    if (content) { opts.content = content; }
+    lenis = new Lenis(opts);
+    lenis.on('scroll', () => {
+      if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.update();
+    });
+    lenisTickerId = gsap.ticker.add((time) => { lenis?.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  function destroyLenis() {
+    if (lenisTickerId !== null) {
+      gsap.ticker.remove(lenisTickerId);
+      lenisTickerId = null;
+    }
+    if (lenis) {
+      lenis.destroy();
+      lenis = null;
+    }
+  }
+
+  function rebuildLenis() {
+    requestAnimationFrame(() => createLenis());
+  }
+
+  /* ---- GSAP ScrollTrigger scroll-reveal ---- */
+  let activeScrollTriggers = [];
+
+  function killScrollTriggers() {
+    activeScrollTriggers.forEach((st) => { try { st.kill(); } catch(e) {} });
+    activeScrollTriggers = [];
+  }
+
+  function getScroller() {
+    if (window.innerWidth < 1025) return undefined;
+    if (document.body.dataset.galleryView === 'detail') return undefined;
+    return mainPanel || undefined;
+  }
+
+  function initOverviewScrollReveal() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    killScrollTriggers();
+    gsap.registerPlugin(ScrollTrigger);
+    const scroller = getScroller();
+
+    const cards = galleryOverview.querySelectorAll('.series-card');
+    if (cards.length) {
+      gsap.set(cards, { opacity: 0, y: 50 });
+      cards.forEach((card, i) => {
+        const tween = gsap.to(card, {
+          opacity: 1, y: 0,
+          duration: prefersReducedMotion ? 0 : 0.7,
+          delay: (i % 4) * 0.06,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: card,
+            scroller: scroller,
+            start: 'top 92%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        });
+        activeScrollTriggers.push(tween.scrollTrigger);
+      });
+    }
+
+    const featured = galleryOverview.querySelectorAll('.setup-featured-item');
+    if (featured.length) {
+      gsap.set(featured, { opacity: 0, y: 40 });
+      featured.forEach((item, i) => {
+        const tween = gsap.to(item, {
+          opacity: 1, y: 0,
+          duration: prefersReducedMotion ? 0 : 0.6,
+          delay: i * 0.1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: item,
+            scroller: scroller,
+            start: 'top 92%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        });
+        activeScrollTriggers.push(tween.scrollTrigger);
+      });
+    }
+  }
+
+  function initDetailScrollReveal() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    killScrollTriggers();
+    gsap.registerPlugin(ScrollTrigger);
+
+    const heroCard = seriesDetail.querySelector('.detail-hero-card');
+    if (heroCard) {
+      gsap.set(heroCard, { opacity: 0, y: 30, scale: 0.98 });
+      const tween = gsap.to(heroCard, {
+        opacity: 1, y: 0, scale: 1,
+        duration: prefersReducedMotion ? 0 : 0.8,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: heroCard,
+          start: 'top 95%',
+          toggleActions: 'play none none none',
+          once: true
+        }
+      });
+      activeScrollTriggers.push(tween.scrollTrigger);
+    }
+
+    const sections = seriesDetail.querySelectorAll('.detail-section');
+    sections.forEach((section) => {
+      gsap.set(section, { opacity: 0, y: 40 });
+      const tween = gsap.to(section, {
+        opacity: 1, y: 0,
+        duration: prefersReducedMotion ? 0 : 0.7,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 88%',
+          toggleActions: 'play none none none',
+          once: true
+        }
+      });
+      activeScrollTriggers.push(tween.scrollTrigger);
+    });
+
+    const shotCards = seriesDetail.querySelectorAll('.detail-shot-card');
+    if (shotCards.length) {
+      gsap.set(shotCards, { opacity: 0, y: 30 });
+      shotCards.forEach((card, i) => {
+        const tween = gsap.to(card, {
+          opacity: 1, y: 0,
+          duration: prefersReducedMotion ? 0 : 0.6,
+          delay: (i % 3) * 0.06,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 90%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        });
+        activeScrollTriggers.push(tween.scrollTrigger);
+      });
+    }
+  }
+
   function escapeHtml(value) {
     return String(value ?? '')
       .replace(/&/g, '&amp;')
@@ -6310,6 +6492,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function scrollGalleryTo(top, behavior) {
+    if (lenis && behavior !== 'auto') {
+      lenis.scrollTo(top, { immediate: false });
+      return;
+    }
+    if (lenis && behavior === 'auto') {
+      lenis.scrollTo(top, { immediate: true });
+      return;
+    }
     const target = getMainScrollTarget();
     if (!target) return;
     target.scrollTo({ top, behavior });
@@ -6493,6 +6683,8 @@ document.addEventListener('DOMContentLoaded', () => {
       requestAnimationFrame(() => scrollGalleryTo(0, 'auto'));
     }
     updateScrollProgress();
+    rebuildLenis();
+    requestAnimationFrame(() => initOverviewScrollReveal());
   }
 
   function renderDetail(series, options = {}) {
@@ -6523,6 +6715,8 @@ document.addEventListener('DOMContentLoaded', () => {
       requestAnimationFrame(() => scrollGalleryTo(0, 'auto'));
     }
     updateScrollProgress();
+    rebuildLenis();
+    requestAnimationFrame(() => initDetailScrollReveal());
   }
 
   function openSeries(seriesId, options = {}) {
@@ -7202,18 +7396,33 @@ document.addEventListener('DOMContentLoaded', () => {
     inspireBtn?.addEventListener('click', () => {
       if (!seriesDetail.hidden) {
         const target = seriesDetail.querySelector('.detail-section, .detail-shot-card, .detail-hero-card');
-        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (target) {
+          lenis ? lenis.scrollTo(target, { offset: -100 }) : target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
         return;
       }
       const cards = Array.from(galleryOverview.querySelectorAll('.series-card'));
       const target = cards[Math.floor(Math.random() * cards.length)];
-      target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (target) {
+        lenis ? lenis.scrollTo(target, { offset: -100 }) : target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     });
 
     window.addEventListener('resize', updateScrollProgress);
     window.addEventListener('scroll', updateScrollProgress, { passive: true });
     mainPanel?.addEventListener('scroll', updateScrollProgress, { passive: true });
     galleryScroll?.addEventListener('scroll', updateScrollProgress, { passive: true });
+
+    let lastBreakpoint = window.innerWidth >= 1025 ? 'desktop' : 'mobile';
+    window.addEventListener('resize', () => {
+      const bp = window.innerWidth >= 1025 ? 'desktop' : 'mobile';
+      if (bp !== lastBreakpoint) {
+        lastBreakpoint = bp;
+        rebuildLenis();
+      }
+    });
+
+    createLenis();
   }
 
   cleanupSiteLoader = initLottieLoaderScene(siteLoaderRose);
