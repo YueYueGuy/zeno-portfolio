@@ -197,6 +197,33 @@ function initLazyMedia() {
 
 function initScrollReveal() {
   const scrollRoot = document.querySelector('.gallery-scroll');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+    const cards = document.querySelectorAll('.gallery-card');
+    if (cards.length) {
+      gsap.set(cards, { opacity: 0, y: 50 });
+      cards.forEach((card, i) => {
+        gsap.to(card, {
+          opacity: 1, y: 0,
+          duration: prefersReducedMotion ? 0 : 0.7,
+          delay: (i % 4) * 0.06,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: card,
+            scroller: scrollRoot,
+            start: 'top 92%',
+            toggleActions: 'play none none none',
+            once: true
+          }
+        });
+      });
+    }
+    return null;
+  }
+
+  // Fallback: IntersectionObserver if GSAP unavailable
   let revealIndex = 0;
   const revealObserver = new IntersectionObserver((entries) => {
     for (const entry of entries) {
@@ -207,7 +234,8 @@ function initScrollReveal() {
       revealIndex++;
       card.style.transitionDelay = delay + 'ms';
       requestAnimationFrame(() => {
-        card.classList.add('in-view');
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
         setTimeout(() => { card.style.transitionDelay = ''; }, delay + 700);
       });
     }
@@ -223,7 +251,6 @@ function renderWall(works) {
   if (!els.stream) return;
 
   const observer = initLazyMedia();
-  const revealObserver = initScrollReveal();
   const BATCH = 12;
   let idx = 0;
 
@@ -233,12 +260,13 @@ function renderWall(works) {
     while (idx < end) {
       const card = buildCardElement(works[idx++]);
       observer.observe(card);
-      revealObserver.observe(card);
       frag.appendChild(card);
     }
     els.stream.appendChild(frag);
     if (idx < works.length) {
       requestAnimationFrame(renderBatch);
+    } else {
+      initScrollReveal();
     }
   }
 
@@ -313,23 +341,24 @@ async function init() {
   els.loader.hidden = true;
   announce(`Loaded ${works.length} works.`);
 
-  // Lenis smooth scroll
-  if (typeof Lenis !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  // Lenis smooth scroll (gsap.ticker driven, matching saturn.credit feel)
+  if (typeof Lenis !== 'undefined' && typeof gsap !== 'undefined' && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const scrollRoot = document.querySelector('.gallery-scroll');
     if (scrollRoot) {
       const lenis = new Lenis({
         wrapper: scrollRoot,
-        lerp: 0.08,
-        duration: 1.2,
+        duration: 1.6,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
         smoothTouch: false,
-        wheelMultiplier: 1
+        wheelMultiplier: 0.9,
+        touchMultiplier: 1.5
       });
-      function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-      }
-      requestAnimationFrame(raf);
+      lenis.on('scroll', () => {
+        if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.update();
+      });
+      gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+      gsap.ticker.lagSmoothing(0);
     }
   }
 }
