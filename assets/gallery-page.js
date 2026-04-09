@@ -319,7 +319,6 @@ async function init() {
     if (scrollRoot) {
       const lenis = new Lenis({
         wrapper: scrollRoot,
-        content: document.getElementById('galleryStream'),
         lerp: 0.08,
         duration: 1.2,
         smoothWheel: true,
